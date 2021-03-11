@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "281583775803",
+    "firebase_url": "https://synonym-antonym-app.firebaseio.com",
+    "project_id": "synonym-antonym-app",
+    "storage_bucket": "synonym-antonym-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281583775803:android:98fa2ea19064599b7aac1e",
+        "android_client_info": {
+          "package_name": "com.ithobbies.synonym_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "281583775803-13i5c122r2po5k0lfe6md073m2fkne7n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARJmznQTmOmpQkN5ThLaIV1_GBl45hpas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "281583775803-13i5c122r2po5k0lfe6md073m2fkne7n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
