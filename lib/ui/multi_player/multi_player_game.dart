@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/models/result.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/multi_player/game_results.dart';
 
@@ -40,14 +40,14 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
 
   @override
   void didInitState() {
-    _subscription = Firestore.instance
+    _subscription = FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
-        .document(_game.id)
+        .doc(_game.id)
         .snapshots()
         .listen((val) {
-      _game = GameInProgress.fromMap(val.data);
+      _game = GameInProgress.fromMap(val.data());
 
       setState(() {
         _currentQuestion = _game.currentQuestion;
@@ -260,15 +260,15 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
     String id = _game.id;
 
     if (_game.remainingTurns - 1 == 0) {
-      var opponentData = await Firestore.instance
+      var opponentData = await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(_game.playingWith)
+          .doc(_game.playingWith)
           .collection(Keys.games)
-          .document(id)
+          .doc(id)
           .get();
 
-      if (opponentData.data['remainingTurns'] == 0) {
-        await _finishGame(GameInProgress.fromMap(opponentData.data));
+      if (opponentData.data()['remainingTurns'] == 0) {
+        await _finishGame(GameInProgress.fromMap(opponentData.data()));
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => GameResults(_game.id)));
         return;
@@ -295,54 +295,54 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
       currentQuestion: question,
     );
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
-        .document(id)
-        .updateData(currentUserGameObject.toMap());
+        .doc(id)
+        .update(currentUserGameObject.toMap());
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(_game.playingWith)
+        .doc(_game.playingWith)
         .collection(Keys.games)
-        .document(id)
-        .updateData({
-      'playingWith': Provider.of<User>(context, listen: false).uid,
+        .doc(id)
+        .update({
+      'playingWith': Provider.of<LocalUser>(context, listen: false).uid,
       'currentQuestion': question.toMap(),
       'turn': _game.turn == Keys.yourTurn ? Keys.opponentsTurn : Keys.yourTurn,
     });
   }
 
   _finishGame(GameInProgress opponentGameData) async {
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
-        .document(_game.id)
-        .updateData({'turn': Keys.endGame});
+        .doc(_game.id)
+        .update({'turn': Keys.endGame});
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(_game.playingWith)
+        .doc(_game.playingWith)
         .collection(Keys.games)
-        .document(_game.id)
-        .updateData({'turn': Keys.endGame});
+        .doc(_game.id)
+        .update({'turn': Keys.endGame});
 
     Result resultUserA = Result(
-      uid: Provider.of<User>(context, listen: false).uid,
-      name: Provider.of<User>(context, listen: false).name,
+      uid: Provider.of<LocalUser>(context, listen: false).uid,
+      name: Provider.of<LocalUser>(context, listen: false).name,
       correctAns: _game.correctAns,
       wrongAns: _game.wrongAns,
     );
 
     Result resultUserB = Result(
       uid: _game.playingWith,
-      name: (await Firestore.instance
+      name: (await FirebaseFirestore.instance
               .collection(Keys.user)
-              .document(_game.playingWith)
+              .doc(_game.playingWith)
               .get())
-          .data['name'],
+          .data()['name'],
       correctAns: opponentGameData.correctAns,
       wrongAns: opponentGameData.wrongAns,
     );
@@ -351,22 +351,22 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
     if (_game.correctAns == opponentGameData.correctAns)
       winner = '';
     else if (_game.correctAns > opponentGameData.correctAns)
-      winner = Provider.of<User>(context, listen: false).uid;
+      winner = Provider.of<LocalUser>(context, listen: false).uid;
     else
       winner = _game.playingWith;
 
     CompletedGame completedGame = CompletedGame(
-      userAUid: Provider.of<User>(context, listen: false).uid,
+      userAUid: Provider.of<LocalUser>(context, listen: false).uid,
       userBUid: _game.playingWith,
       winnerUid: winner,
       userAResult: resultUserA,
       userBResult: resultUserB,
     );
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.completedGames)
-        .document(_game.id)
-        .setData(completedGame.toMap());
+        .doc(_game.id)
+        .set(completedGame.toMap());
   }
 }
 

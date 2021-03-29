@@ -6,7 +6,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/static_info.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
@@ -171,7 +171,7 @@ class _RegisterState extends State<Register> {
     );
     dialog.show();
 
-    User user = User(
+    LocalUser user = LocalUser(
       uid: null,
       userName: userName,
       email: email,
@@ -258,7 +258,9 @@ class _AddProfilePageState extends State<AddProfilePage> {
                   MaterialPageRoute(builder: (_) => WalkTroughPage()),
                   (route) => false);
             },
-            child: image != null && name.text != '' ? Text('SAVE', style: style) : Container(),
+            child: image != null && name.text != ''
+                ? Text('SAVE', style: style)
+                : Container(),
           ),
         ],
       ),
@@ -270,7 +272,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
         .ref()
         .child(DateTime.now().millisecondsSinceEpoch.toString());
     final uploadTask = storageReference.putFile(filepath);
-    var taskSnapshot = await uploadTask.onComplete;
+    var taskSnapshot = await uploadTask.whenComplete;
     image = await storageReference.getDownloadURL();
     setState(() {});
   }
@@ -366,17 +368,17 @@ class _AddProfilePageState extends State<AddProfilePage> {
     dialog.show();
     if (image != null) {
       print("adding img");
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
-          .document(Constants.useruid)
-          .updateData({'image': image});
+          .doc(Constants.useruid)
+          .update({'image': image});
     }
     if (name.text != '') {
       print("adding name");
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
-          .document(Constants.useruid)
-          .updateData({'name': name.text});
+          .doc(Constants.useruid)
+          .update({'name': name.text});
       AuthHelper helper = AuthHelper();
       var result = await helper.username(context, name.text);
     }

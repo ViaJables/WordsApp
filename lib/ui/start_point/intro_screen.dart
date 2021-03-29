@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:synonym_app/ui/start_point/home.dart';
+import 'package:synonym_app/helpers/auth_helper.dart';
+import 'package:synonym_app/ui/auth/login.dart';
 
 class IntroScreen extends StatelessWidget {
   @override
@@ -131,7 +133,7 @@ class IntroScreenState extends State<IntroAnimationScreen>
     super.initState();
 
     screenSize = widget.screenSize;
-    listStar = new List();
+    listStar = [];
     numStars = 30;
 
     // Star
@@ -305,10 +307,16 @@ class IntroScreenState extends State<IntroAnimationScreen>
                 child: new Opacity(
                   opacity: fadeStartButton.value,
                   child: new InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      var page;
+                      if ((await AuthHelper().getCurrentUser(context)) == null)
+                        page = Login();
+                      else
+                        page = Home();
+
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => Home()),
+                        MaterialPageRoute(builder: (_) => page),
                       );
                     },
                     child: new Text(

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/custom_button.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
@@ -54,9 +54,9 @@ class _GameResultsState extends State<GameResults> {
               width: double.infinity,
               color: Colors.white,
               child: FutureBuilder<DocumentSnapshot>(
-                  future: Firestore.instance
+                  future: FirebaseFirestore.instance
                       .collection(Keys.completedGames)
-                      .document(widget.gameId)
+                      .doc(widget.gameId)
                       .get(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
@@ -74,7 +74,7 @@ class _GameResultsState extends State<GameResults> {
                         ),
                       );
                     CompletedGame game =
-                        CompletedGame.fromMap(snapshot.data.data);
+                        CompletedGame.fromMap(snapshot.data.data());
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -124,7 +124,7 @@ class _GameResultsState extends State<GameResults> {
                                 onTap: () {
                                   Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(builder: (_) => Home()),
-                                    (_)=> false,
+                                    (_) => false,
                                   );
                                 },
                               ),
@@ -139,8 +139,6 @@ class _GameResultsState extends State<GameResults> {
         ],
       ),
     );
-
-
   }
 
   Widget _scoreRow(String text1, String text2, String text3) {
@@ -193,11 +191,11 @@ class _GameResultsState extends State<GameResults> {
   _rematch(CompletedGame game) async {
     Navigator.pop(context);
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
-        .document(widget.gameId)
+        .doc(widget.gameId)
         .delete();
 
     /*

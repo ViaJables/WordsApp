@@ -229,24 +229,25 @@ class _HistorypageState extends State<Historypage> {
                   ),
             Expanded(
               child: StreamBuilder(
-                stream: Firestore.instance
+                stream: FirebaseFirestore.instance
                     .collection('users')
-                    .document(Constants.useruid)
-                    .collection('antonym').document()
+                    .doc(Constants.useruid)
+                    .collection('antonym')
+                    .doc()
                     .snapshots(),
                 builder: (_ctx, snapshot) {
                   if (snapshot.connectionState != ConnectionState.waiting &&
-                      snapshot.data != null) {
+                      snapshot.data != null &&
+                      snapshot.data.exists) {
                     return ListView.builder(
-                        itemCount: snapshot.data.document.length,
+                        itemCount: snapshot.data.data().length,
                         itemBuilder: (context, index) {
-                          DocumentSnapshot ref =
-                              snapshot.data.document[index];
+                          DocumentSnapshot ref = snapshot.data.data()[index];
                           return Padding(
-                            padding:  EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height/100,
-                              left: MediaQuery.of(context).size.width/100,
-                              right:  MediaQuery.of(context).size.width/100,
+                            padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height / 100,
+                              left: MediaQuery.of(context).size.width / 100,
+                              right: MediaQuery.of(context).size.width / 100,
                             ),
                             child: Container(
                               height: MediaQuery.of(context).size.height / 16,
@@ -255,31 +256,24 @@ class _HistorypageState extends State<Historypage> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        "Word:"
-                                      ), Text(
-                                          "${ref['question']}"
-                                      ),
+                                      Text("Word:"),
+                                      Text("${ref['question']}"),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       Row(
-                                        children: [Text(
-                                            "Answer Given:"
-                                        ), Text(
-                                            "${ref['answergiven']}"
-                                        ),],
+                                        children: [
+                                          Text("Answer Given:"),
+                                          Text("${ref['answergiven']}"),
+                                        ],
                                       ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                            "Answer Given:"
-                                        ), Text(
-                                            "${ref['answergiven']}"
-                                        ),
-                                      ],
-                                    )
+                                      Row(
+                                        children: [
+                                          Text("Answer Given:"),
+                                          Text("${ref['answergiven']}"),
+                                        ],
+                                      )
                                     ],
                                   )
                                 ],
@@ -302,15 +296,15 @@ class _HistorypageState extends State<Historypage> {
   }
 
   void readdata() {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection('users')
-        .document(Constants.useruid)
+        .doc(Constants.useruid)
         .collection('synonym')
-        .getDocuments()
+        .get()
         .then((querySnapshot) {
-      if (querySnapshot.documents.isNotEmpty) {
-        querySnapshot.documents.forEach((result) {
-          HistoryItem item = HistoryItem.fromMap(result.data);
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((result) {
+          HistoryItem item = HistoryItem.fromMap(result.data());
           synonym.add(item);
         });
       } else {
@@ -318,15 +312,15 @@ class _HistorypageState extends State<Historypage> {
       }
       setState(() {});
     });
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection('users')
-        .document(Constants.useruid)
+        .doc(Constants.useruid)
         .collection('antonym')
-        .getDocuments()
+        .get()
         .then((querySnapshot) {
-      if (querySnapshot.documents.isNotEmpty) {
-        querySnapshot.documents.forEach((result) {
-          HistoryItem item = HistoryItem.fromMap(result.data);
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((result) {
+          HistoryItem item = HistoryItem.fromMap(result.data());
           antonym.add(item);
         });
       } else {

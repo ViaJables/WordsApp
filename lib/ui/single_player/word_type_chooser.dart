@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
-import 'package:synonym_app/ui/single_player/sinple_player_game_page.dart';
+import 'package:synonym_app/ui/single_player/single_player_game_page.dart';
 
 class WordTypeChooser extends StatelessWidget {
   final String gameType;

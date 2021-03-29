@@ -4,13 +4,14 @@ import 'package:meta/meta.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/game.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/auth/login.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/multi_player/all_users.dart';
 import 'package:synonym_app/ui/multi_player/game_results.dart';
 import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
+import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/single_player/game_difficulty_chooser.dart';
 
 class Home extends StatefulWidget {
@@ -36,23 +37,23 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<User>(context);
+    var user = Provider.of<LocalUser>(context);
 
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
+            new Starfield(),
             Column(
               children: <Widget>[
-              SizedBox(
-                height: 60,
-              ),
+                SizedBox(
+                  height: 60,
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-
                         SizedBox(
                           height: 10,
                         ),
@@ -63,14 +64,6 @@ class _HomeState extends State<Home> {
                         SizedBox(
                           height: 5,
                         ),
-                        Text(
-                          'welcome back\n${user.name}'.toUpperCase(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.05,
-                            color: Theme.of(context).accentColor,
-                          ),
-                        ),
                         SizedBox(
                           height: 5,
                         ),
@@ -78,15 +71,6 @@ class _HomeState extends State<Home> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             children: <Widget>[
-                              Text(
-                                'start a new game'.toUpperCase(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width * 0.05,
-                                    color: Theme.of(context).accentColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
                               SizedBox(height: 10),
                               _Btn(
                                 text: 'single player',
@@ -94,15 +78,16 @@ class _HomeState extends State<Home> {
                                 onPress: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) => GameDifficultyChooser())),
+                                        builder: (_) =>
+                                            GameDifficultyChooser())),
                               ),
                               SizedBox(height: 10),
                               _Btn(
                                 text: 'multiplayer',
                                 color: Theme.of(context).primaryColorDark,
                                 onPress: () {
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => AllUsers()));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => AllUsers()));
                                 },
                               ),
                               SizedBox(
@@ -113,7 +98,8 @@ class _HomeState extends State<Home> {
                                 onPressed: () async {
                                   AuthHelper().signOut().then((val) {
                                     Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(builder: (_) => Login()),
+                                        MaterialPageRoute(
+                                            builder: (_) => Login()),
                                         (_) => false);
                                   });
                                 },
@@ -121,26 +107,18 @@ class _HomeState extends State<Home> {
                             ],
                           ),
                         ),
-                        Text(
-                          'Your current games'.toUpperCase(),
-                          style: TextStyle(
-                            color: Theme.of(context).accentColor,
-                            fontSize: MediaQuery.of(context).size.width * 0.05,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                         Container(
                           height: MediaQuery.of(context).size.height / 3,
                           child: StreamBuilder(
-                            stream: Firestore.instance
+                            stream: FirebaseFirestore.instance
                                 .collection(Keys.user)
-                                .document(Provider.of<User>(context).uid)
+                                .doc(Provider.of<LocalUser>(context).uid)
                                 .collection(Keys.games)
                                 .snapshots(),
                             builder: (_, snapshot) {
                               if (snapshot.data == null) return Container();
 
-                              var list = snapshot.data.documents;
+                              var list = snapshot.data.docs;
 
                               return ListView.builder(
                                 itemCount: list.length,
@@ -151,28 +129,33 @@ class _HomeState extends State<Home> {
                                   return InkWell(
                                     onTap: () {
                                       if (game.turn == Keys.endGame)
-                                        Navigator.of(context).push(MaterialPageRoute(
-                                            builder: (_) => GameResults(game.id)));
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    GameResults(game.id)));
                                       else
-                                        Navigator.of(context).push(MaterialPageRoute(
-                                            builder: (_) => MultiPlayerGame(game)));
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    MultiPlayerGame(game)));
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
                                           border: Border.all(
-                                              color: Theme.of(context).accentColor)),
+                                              color: Theme.of(context)
+                                                  .accentColor)),
                                       child: FutureBuilder<DocumentSnapshot>(
-                                        future: Firestore.instance
+                                        future: FirebaseFirestore.instance
                                             .collection(Keys.user)
-                                            .document(game.playingWith)
+                                            .doc(game.playingWith)
                                             .get(),
                                         builder: (context, futureSnap) {
                                           if (futureSnap.connectionState ==
                                               ConnectionState.waiting)
                                             return Container();
 
-                                          User user =
-                                              User.fromMap(futureSnap.data.data);
+                                          LocalUser user = LocalUser.fromMap(
+                                              futureSnap.data.data());
 
                                           return Row(
                                             children: <Widget>[
@@ -182,17 +165,20 @@ class _HomeState extends State<Home> {
                                                         .size
                                                         .width *
                                                     0.19,
-                                                color: game.turn == Keys.yourTurn
-                                                    ? Theme.of(context)
-                                                        .primaryColorDark
-                                                    : Colors.transparent,
+                                                color:
+                                                    game.turn == Keys.yourTurn
+                                                        ? Theme.of(context)
+                                                            .primaryColorDark
+                                                        : Colors.transparent,
                                               ),
                                               SizedBox(width: 10),
                                               CircleAvatar(
                                                 radius: 30,
-                                                backgroundImage: NetworkImage(user.image),
+                                                backgroundImage:
+                                                    NetworkImage(user.image),
                                                 backgroundColor:
-                                                    Theme.of(context).accentColor,
+                                                    Theme.of(context)
+                                                        .accentColor,
                                               ),
                                               SizedBox(width: 20),
                                               Column(
@@ -201,34 +187,39 @@ class _HomeState extends State<Home> {
                                                 children: <Widget>[
                                                   Text(
                                                     game.turn == Keys.yourTurn
-                                                        ? 'Your turn'.toUpperCase()
+                                                        ? 'Your turn'
+                                                            .toUpperCase()
                                                         : game.turn ==
-                                                                Keys.opponentsTurn
+                                                                Keys
+                                                                    .opponentsTurn
                                                             ? 'Their turn'
                                                                 .toUpperCase()
                                                             : 'Results are ready'
                                                                 .toUpperCase(),
                                                     style: TextStyle(
-                                                      fontSize: MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.035,
-                                                      fontWeight: FontWeight.bold,
-                                                      color:
-                                                          game.turn == Keys.yourTurn
-                                                              ? Theme.of(context)
-                                                                  .primaryColorDark
-                                                              : Theme.of(context)
-                                                                  .accentColor,
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.035,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: game.turn ==
+                                                              Keys.yourTurn
+                                                          ? Theme.of(context)
+                                                              .primaryColorDark
+                                                          : Theme.of(context)
+                                                              .accentColor,
                                                     ),
                                                   ),
                                                   Text(
                                                     user.name,
                                                     style: TextStyle(
-                                                      fontSize: MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.04,
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.04,
                                                       color: Theme.of(context)
                                                           .accentColor,
                                                     ),
@@ -238,14 +229,15 @@ class _HomeState extends State<Home> {
                                               Expanded(child: Container()),
                                               Padding(
                                                 padding: EdgeInsets.only(
-                                                    right: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.02),
+                                                    right:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.02),
                                                 child: Icon(
                                                   Icons.arrow_forward_ios,
-                                                  color:
-                                                      Theme.of(context).accentColor,
+                                                  color: Theme.of(context)
+                                                      .accentColor,
                                                 ),
                                               )
                                             ],
@@ -265,7 +257,9 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            AllThree(),
+            AllThree(
+              color: Colors.white,
+            ),
           ],
         ),
       ),

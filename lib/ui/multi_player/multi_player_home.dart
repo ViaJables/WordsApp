@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/game.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/page_bacground.dart';
 import 'package:synonym_app/ui/multi_player/all_users.dart';
@@ -31,7 +31,7 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
 
   @override
   void didInitState() {
-    myUid = Provider.of<User>(context).uid;
+    myUid = Provider.of<LocalUser>(context).uid;
   }
 
   @override
@@ -42,11 +42,9 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
 
   @override
   Widget build(BuildContext context) {
-
 //    return Scaffold();
 
-
-    var user = Provider.of<User>(context);
+    var user = Provider.of<LocalUser>(context);
 
     return PageBacground(
       title: 'multiplayer',
@@ -108,7 +106,7 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                           ),
                         ),
                         Text(
-                          Provider.of<User>(context).name.toUpperCase(),
+                          Provider.of<LocalUser>(context).name.toUpperCase(),
                           style: TextStyle(
                               fontSize: 17,
                               color: Theme.of(context).accentColor,
@@ -168,22 +166,22 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                           borderRadius: BorderRadius.all(Radius.circular(7)),
                         ),
                         child: StreamBuilder<QuerySnapshot>(
-                          stream: Firestore.instance
+                          stream: FirebaseFirestore.instance
                               .collection(Keys.user)
-                              .document(Provider.of<User>(context).uid)
+                              .doc(Provider.of<LocalUser>(context).uid)
                               .collection(Keys.games)
                               .snapshots(),
                           builder: (_, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) return Container();
 
-                            var list = snapshot.data.documents;
+                            var list = snapshot.data.docs;
 
                             return ListView.builder(
                               itemCount: list.length,
                               itemBuilder: (_, index) {
                                 GameInProgress game =
-                                    GameInProgress.fromMap(list[index].data);
+                                    GameInProgress.fromMap(list[index].data());
 
                                 var padding =
                                     MediaQuery.of(context).size.width * 0.4;
@@ -205,17 +203,17 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                                     )),
                                     child: ListTile(
                                       title: FutureBuilder<DocumentSnapshot>(
-                                          future: Firestore.instance
+                                          future: FirebaseFirestore.instance
                                               .collection(Keys.user)
-                                              .document(game.playingWith)
+                                              .doc(game.playingWith)
                                               .get(),
                                           builder: (context, futureSnap) {
                                             if (futureSnap.connectionState ==
                                                 ConnectionState.waiting)
                                               return Container();
 
-                                            User user = User.fromMap(
-                                                futureSnap.data.data);
+                                            LocalUser user = LocalUser.fromMap(
+                                                futureSnap.data.data());
 
                                             String text;
                                             if (game.turn == Keys.yourTurn)

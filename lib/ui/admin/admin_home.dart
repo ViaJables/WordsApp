@@ -96,7 +96,7 @@ class WordsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
+      stream: FirebaseFirestore.instance
           .collection(Keys.questions)
           .where('synonymOrAntonym', isEqualTo: synonymOrAntonym)
           .snapshots(),
@@ -106,20 +106,20 @@ class WordsList extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         return ListView.separated(
-          itemCount: snapshot.data.documents.length,
+          itemCount: snapshot.data.docs.length,
           separatorBuilder: (_, i) => Divider(),
           itemBuilder: (_, index) {
             Question question =
-                Question.fromMap(snapshot.data.documents[index].data);
+                Question.fromMap(snapshot.data.docs[index].data());
 
             return ListTile(
               title: Text(question.word),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () async {
-                  await Firestore.instance
+                  await FirebaseFirestore.instance
                       .collection(Keys.questions)
-                      .document(question.id)
+                      .doc(question.id)
                       .delete();
                 },
               ),

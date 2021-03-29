@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/page_bacground.dart';
 import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
 
 class NewGame extends StatefulWidget {
-  final User user;
+  final LocalUser user;
   final GameInProgress game;
 
   NewGame(this.user, this.game);
@@ -80,8 +80,8 @@ class _NewGameState extends State<NewGame> {
                 Future.delayed(Keys.playAnimDuration).then((val) {
                   Provider.of<QuestionProvider>(context, listen: false).reset();
 
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => MultiPlayerGame(widget.game)));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (_) => MultiPlayerGame(widget.game)));
                 });
               },
               child: Container(
@@ -105,7 +105,7 @@ class _NewGameState extends State<NewGame> {
                             image: AssetImage('assets/arrow_left_blue.png'),
                             fit: BoxFit.cover,
                           )),
-                          child: _child(Provider.of<User>(context)),
+                          child: _child(Provider.of<LocalUser>(context)),
                         ),
                       ),
                     ),
@@ -182,7 +182,7 @@ class _NewGameState extends State<NewGame> {
                       image: AssetImage('assets/blue_arrow_right.png'),
                       fit: BoxFit.cover,
                     )),
-                    child: _child(Provider.of<User>(context)),
+                    child: _child(Provider.of<LocalUser>(context)),
                   ),
                 ),
               ),
@@ -212,14 +212,12 @@ class _NewGameState extends State<NewGame> {
     );
   }
 
-  Widget _child(User user) {
+  Widget _child(LocalUser user) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-
-
         Text(
-          user.uid == Provider.of<User>(context).uid ? 'YOU' : user.name,
+          user.uid == Provider.of<LocalUser>(context).uid ? 'YOU' : user.name,
           style: TextStyle(
             color: Colors.white,
             fontSize: 25,
@@ -227,20 +225,20 @@ class _NewGameState extends State<NewGame> {
           ),
         ),
         SizedBox(width: 10),
-        user.uid == Provider.of<User>(context).uid
+        user.uid == Provider.of<LocalUser>(context).uid
             ? Container()
             : CircleAvatar(
-          backgroundColor: Theme.of(context).accentColor,
-          child: user.image == ''
-              ? Icon(
-            Icons.person,
-            color: Colors.white,
-          )
-              : null,
+                backgroundColor: Theme.of(context).accentColor,
+                child: user.image == ''
+                    ? Icon(
+                        Icons.person,
+                        color: Colors.white,
+                      )
+                    : null,
 //          backgroundImage: user.image == ''
 //              ? null
 //              : MemoryImage(Base64Decoder().convert(user.image)),
-        ),
+              ),
       ],
     );
   }

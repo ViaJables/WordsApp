@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/admin/admin_info.dart';
@@ -22,10 +22,10 @@ class AuthHelper {
         if (email != adminEmail) {
           var user = await _getUser();
           Constants.useruid = user.uid.toString();
-          Provider.of<User>(context, listen: false).uid = user.uid;
-          Provider.of<User>(context, listen: false).name = user.name;
-          Provider.of<User>(context, listen: false).email = user.email;
-          Provider.of<User>(context, listen: false).image = user.image;
+          Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+          Provider.of<LocalUser>(context, listen: false).name = user.name;
+          Provider.of<LocalUser>(context, listen: false).email = user.email;
+          Provider.of<LocalUser>(context, listen: false).image = user.image;
         }
 
         return null;
@@ -36,22 +36,22 @@ class AuthHelper {
   }
 
   Future<String> signUp(
-      BuildContext context, User user, String password) async {
+      BuildContext context, LocalUser user, String password) async {
     try {
       var result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: user.email, password: password);
       if (result.user == null) return 'error';
       user.uid = result.user.uid;
       Constants.useruid = result.user.uid;
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(user.uid)
-          .setData(user.toMap());
+          .doc(user.uid)
+          .set(user.toMap());
       await _saveUser(user);
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
       return null;
     } catch (e) {
       return e.code;
@@ -64,24 +64,24 @@ class AuthHelper {
 //      var fUser = await FirebaseAuth.instance.currentUser();
 //      if (fUser == null) return false;
 
-      User user = User(
-        uid: Provider.of<User>(context).uid,
-        name: Provider.of<User>(context).name,
-        email: Provider.of<User>(context).email,
+      LocalUser user = LocalUser(
+        uid: Provider.of<LocalUser>(context).uid,
+        name: Provider.of<LocalUser>(context).name,
+        email: Provider.of<LocalUser>(context).email,
         image: image,
         // UserName:username
       );
 
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(user.uid)
-          .updateData(user.toMap());
+          .doc(user.uid)
+          .update(user.toMap());
 
       await _saveUser(user);
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
 
       return true;
     } catch (e) {
@@ -95,21 +95,21 @@ class AuthHelper {
 //      var fUser = await FirebaseAuth.instance.currentUser();
 //      if (fUser == null) return false;
 
-      User user = User(
-          uid: Provider.of<User>(context).uid,
-          name: Provider.of<User>(context).name,
-          email: Provider.of<User>(context).email);
+      LocalUser user = LocalUser(
+          uid: Provider.of<LocalUser>(context).uid,
+          name: Provider.of<LocalUser>(context).name,
+          email: Provider.of<LocalUser>(context).email);
 
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(user.uid)
-          .updateData(user.toMap());
+          .doc(user.uid)
+          .update(user.toMap());
 
       await _saveUser(user);
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
 
       return true;
     } catch (e) {
@@ -127,28 +127,28 @@ class AuthHelper {
     }
   }
 
-  Future<User> getCurrentUser(BuildContext context) async {
+  Future<LocalUser> getCurrentUser(BuildContext context) async {
     try {
-      var fUser = await FirebaseAuth.instance.currentUser();
+      var fUser = FirebaseAuth.instance.currentUser;
       if (fUser == null) return null;
       Constants.useruid = fUser.uid.toString();
       print(Constants.useruid);
-      User currentUser;
+      LocalUser currentUser;
       var prefResult = (await SharedPreferences.getInstance()).get(Keys.user);
       if (prefResult == null) {
-        currentUser = User.fromMap((await Firestore.instance
+        currentUser = LocalUser.fromMap((await FirebaseFirestore.instance
                 .collection(Keys.user)
-                .document((await FirebaseAuth.instance.currentUser()).uid)
+                .doc(fUser.uid)
                 .get())
-            .data);
+            .data());
         _saveUser(currentUser);
       } else
-        currentUser = User.fromMap(json.decode(prefResult));
+        currentUser = LocalUser.fromMap(json.decode(prefResult));
 
-      Provider.of<User>(context, listen: false).uid = currentUser.uid;
-      Provider.of<User>(context, listen: false).name = currentUser.name;
-      Provider.of<User>(context, listen: false).email = currentUser.email;
-      Provider.of<User>(context, listen: false).image = currentUser.image;
+      Provider.of<LocalUser>(context, listen: false).uid = currentUser.uid;
+      Provider.of<LocalUser>(context, listen: false).name = currentUser.name;
+      Provider.of<LocalUser>(context, listen: false).email = currentUser.email;
+      Provider.of<LocalUser>(context, listen: false).image = currentUser.image;
 
       return currentUser;
     } catch (e) {
@@ -161,22 +161,22 @@ class AuthHelper {
     (await SharedPreferences.getInstance()).remove(Keys.user);
   }
 
-  _saveUser(User user) async {
+  _saveUser(LocalUser user) async {
     var pref = await SharedPreferences.getInstance();
     await pref.setString(Keys.user, json.encode(user.toMap()));
   }
 
-  Future<User> _getUser() async {
+  Future<LocalUser> _getUser() async {
     var prefResult = (await SharedPreferences.getInstance()).get(Keys.user);
     if (prefResult == null) {
-      User user = User.fromMap((await Firestore.instance
+      LocalUser user = LocalUser.fromMap((await FirebaseFirestore.instance
               .collection(Keys.user)
-              .document((await FirebaseAuth.instance.currentUser()).uid)
+              .doc(FirebaseAuth.instance.currentUser.uid)
               .get())
-          .data);
+          .data());
       _saveUser(user);
       return user;
     } else
-      return User.fromMap(json.decode(prefResult));
+      return LocalUser.fromMap(json.decode(prefResult));
   }
 }

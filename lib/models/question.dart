@@ -63,18 +63,17 @@ class QuestionProvider {
 
     while (true) {
       int randomNum = _random.nextInt(4);
-      var result = (await Firestore.instance
-              .collection(Keys.questions)
-              .where('correctAnswer', isEqualTo: randomNum)
-              .getDocuments())
-          .documents;
+      var result = (await FirebaseFirestore.instance
+          .collection(Keys.questions)
+          .where('correctAnswer', isEqualTo: randomNum)
+          .get());
 
-      if (result.length == 0) continue;
-      if (result.length >= _askedQuestions.length / 1.5)
-        _askedQuestions.clear();
+      if (result.size == 0) continue;
+      if (result.size >= _askedQuestions.length / 1.5) _askedQuestions.clear();
 
       while (true) {
-        var doc = Question.fromMap(result[_random.nextInt(result.length)].data);
+        var doc =
+            Question.fromMap(result.docs[_random.nextInt(result.size)].data());
         if (!_askedQuestions.contains(doc)) {
           question = doc;
           break;

@@ -16,7 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/res/static_info.dart';
@@ -129,7 +129,7 @@ class _LoginState extends State<Login> {
                                       SizedBox(width: 10),
                                       GestureDetector(
                                         onTap: () {
-                                         dealFbLogin();
+                                          dealFbLogin();
                                         },
                                         child: Container(
                                           height: MediaQuery.of(context)
@@ -270,7 +270,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _saveUser(User user) async {
+  _saveUser(LocalUser user) async {
     var pref = await SharedPreferences.getInstance();
     await pref.setString(Keys.user, json.encode(user.toMap()));
   }
@@ -302,8 +302,9 @@ class _LoginState extends State<Login> {
           });
           accessToken = await result.accessToken;
           token = accessToken.token;
-          graphResponse = await http.get(
-              'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${token}');
+          graphResponse = await http.get(Uri.https(
+              'jsonplaceholder.typicode.com',
+              'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${token}'));
           profile = json.decode(graphResponse.body);
           print('This came from Facebook Response $profile');
           showAlertDialog(true);
@@ -338,41 +339,40 @@ class _LoginState extends State<Login> {
       progressWidget: CircularProgressIndicator(),
     );
     try {
-      final facebookAuthCred =
-          FacebookAuthProvider.getCredential(accessToken: token);
+      final facebookAuthCred = FacebookAuthProvider.credential(token);
       final fbUser =
           await FirebaseAuth.instance.signInWithCredential(facebookAuthCred);
       String fbUid = fbUser.user.uid;
 
-      http.Response response = await http.get(
-        'http://graph.facebook.com/v9.0/$id/picture?access_token=$token',
-      );
+      http.Response response = await http.get(Uri.https(
+          'jsonplaceholder.typicode.com',
+          'http://graph.facebook.com/v9.0/$id/picture?access_token=$token'));
       Uint8List fbImage = response.bodyBytes.buffer.asUint8List();
       var storageReference = FirebaseStorage.instance
           .ref()
           .child(DateTime.now().millisecondsSinceEpoch.toString());
       final uploadTask = storageReference.putData(fbImage);
-      var taskSnapshot = await uploadTask.onComplete;
+      var taskSnapshot = await uploadTask.whenComplete;
       String imgUrlLink = await storageReference.getDownloadURL();
       String userName = name.replaceAll(' ', '');
-      User user = User(
+      LocalUser user = LocalUser(
         uid: fbUid,
         name: name,
         email: email,
         image: imgUrlLink,
         userName: userName,
       );
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(fbUid)
-          .setData(user.toMap());
+          .doc(fbUid)
+          .set(user.toMap());
 
       await _saveUser(user);
 
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
@@ -408,45 +408,45 @@ class _LoginState extends State<Login> {
           await googleUser.authentication;
       print('2');
 
-      final credential = GoogleAuthProvider.getCredential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
       print('3');
-      AuthResult authResult =
+      UserCredential authResult =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      List<String> bigPic = authResult.user.photoUrl.split('=');
+      List<String> bigPic = authResult.user.photoURL.split('=');
       http.Response response = await http.get(
-        '${bigPic[0]}',
+        Uri.https('jsonplaceholder.typicode.com', '${bigPic[0]}'),
       );
       String imageName =
           DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
       Uint8List googleImage = response.bodyBytes.buffer.asUint8List();
       var storageReference = FirebaseStorage.instance.ref().child(imageName);
       final uploadTask = storageReference.putData(googleImage);
-      var taskSnapshot = await uploadTask.onComplete;
+      var taskSnapshot = await uploadTask.whenComplete;
       String imgUrlLink = await storageReference.getDownloadURL();
       String userName = authResult.user.displayName.replaceAll(' ', '');
       String userUid = authResult.user.uid;
-      User user = User(
+      LocalUser user = LocalUser(
         uid: userUid,
         name: authResult.user.displayName,
         email: authResult.user.email,
         image: imgUrlLink,
         userName: userName,
       );
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(userUid)
-          .setData(user.toMap());
+          .doc(userUid)
+          .set(user.toMap());
 
       await _saveUser(user);
 
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
@@ -499,44 +499,44 @@ class _LoginState extends State<Login> {
       );
 
       // Create an `OAuthCredential` from the credential returned by Apple.
-      final oauthCredential =
-          OAuthProvider(providerId: 'apple.com').getCredential(
+      final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
       );
 
-      AuthResult authResult =
+      UserCredential authResult =
           await FirebaseAuth.instance.signInWithCredential(oauthCredential);
       String userUid = authResult.user.uid;
-      String name = '${appleCredential.givenName} ${appleCredential.familyName}';
+      String name =
+          '${appleCredential.givenName} ${appleCredential.familyName}';
       String userName = name.replaceAll(' ', '');
       String email = appleCredential.email;
 
-      User user = User(
+      LocalUser user = LocalUser(
         uid: userUid,
         name: name,
         email: email,
         image: 'None Because Apple',
         userName: userName,
       );
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.user)
-          .document(userUid)
-          .setData(user.toMap());
+          .doc(userUid)
+          .set(user.toMap());
 
       await _saveUser(user);
 
-      Provider.of<User>(context, listen: false).uid = user.uid;
-      Provider.of<User>(context, listen: false).name = user.name;
-      Provider.of<User>(context, listen: false).email = user.email;
-      Provider.of<User>(context, listen: false).image = user.image;
+      Provider.of<LocalUser>(context, listen: false).uid = user.uid;
+      Provider.of<LocalUser>(context, listen: false).name = user.name;
+      Provider.of<LocalUser>(context, listen: false).email = user.email;
+      Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => WalkTroughPage()),
-              (route) => false);
+          (route) => false);
     } catch (e) {
-      if(e.toString().contains('canceled')){
+      if (e.toString().contains('canceled')) {
         dialog.hide();
       }
     }
@@ -595,6 +595,7 @@ class _LoginState extends State<Login> {
       else
         StaticInfo.showToast(context, 'some error has occured while signing in',
             duration: 5);
+      print(result);
     }
   }
 }

@@ -8,7 +8,7 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
-import 'package:synonym_app/models/user.dart';
+import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/multi_player/new_game.dart';
@@ -147,16 +147,18 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance.collection(Keys.user).snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection(Keys.user)
+                    .snapshots(),
                 builder: (context, snapshot) {
-                  List<User> usersList = List();
-
+                  var userList = [];
+                  List<LocalUser> usersList = [];
                   if (snapshot.data != null)
-                    for (var item in snapshot.data.documents) {
-                      var user = User.fromMap(item.data);
+                    for (var item in snapshot.data.docs) {
+                      var user = LocalUser.fromMap(item.data());
 
-                      print(Provider.of<User>(context).uid);
-                      if (user.uid != Provider.of<User>(context).uid)
+                      print(Provider.of<LocalUser>(context).uid);
+                      if (user.uid != Provider.of<LocalUser>(context).uid)
                         usersList.add(user);
                     }
 
@@ -166,11 +168,11 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                         index: pageIndex,
                         children: <Widget>[
                           StreamBuilder<QuerySnapshot>(
-                            stream: Firestore.instance
+                            stream: FirebaseFirestore.instance
                                 .collection(Keys.user)
-                                .document(
-                                    Provider.of<User>(context, listen: false)
-                                        .uid)
+                                .doc(Provider.of<LocalUser>(context,
+                                        listen: false)
+                                    .uid)
                                 .collection(Keys.friends)
                                 .snapshots(),
                             builder: (_, snapshot) {
@@ -180,11 +182,11 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                                   child: CircularProgressIndicator(),
                                 );
 
-                              List<User> friends = List();
+                              var friends = [];
 
-                              for (var item in snapshot.data.documents) {
-                                var user = usersList.firstWhere(
-                                    (u) => u.uid == item.documentID);
+                              for (var item in snapshot.data.docs) {
+                                var user = usersList
+                                    .firstWhere((u) => u.uid == item.id);
                                 if (user != null) friends.add(user);
                               }
 
@@ -246,7 +248,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
     );
   }
 
-  Widget _listItem(User user) {
+  Widget _listItem(LocalUser user) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: ListTile(
@@ -283,38 +285,38 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
     );
   }
 
-  _startGame(User user) async {
+  _startGame(LocalUser user) async {
     ProgressDialog dialog = ProgressDialog(context);
     dialog.style(message: 'Please wait...');
     dialog.show();
 
-    var result = await Firestore.instance
+    var result = await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
         .where('playingWith', isEqualTo: user.uid)
-        .getDocuments();
+        .get();
 
-    if (result.documents.length != 0) {
+    if (result.docs.length != 0) {
       dialog.hide();
       Toast.show('already playing with ${user.name}', context, duration: 3);
       return;
     }
 
     // adding as friend
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.friends)
-        .document(user.uid)
-        .setData({'isFriend': true});
+        .doc(user.uid)
+        .set({'isFriend': true});
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(user.uid)
+        .doc(user.uid)
         .collection(Keys.friends)
-        .document(Provider.of<User>(context, listen: false).uid)
-        .setData({'isFriend': true});
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
+        .set({'isFriend': true});
 
     GameInProgress game = GameInProgress(
       id: '${DateTime.now().millisecondsSinceEpoch}',
@@ -328,22 +330,22 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
               .getRandomQuestion(),
     );
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(Provider.of<User>(context, listen: false).uid)
+        .doc(Provider.of<LocalUser>(context, listen: false).uid)
         .collection(Keys.games)
-        .document(game.id)
-        .setData(game.toMap());
+        .doc(game.id)
+        .set(game.toMap());
 
     game.turn = Keys.opponentsTurn;
-    game.playingWith = Provider.of<User>(context, listen: false).uid;
+    game.playingWith = Provider.of<LocalUser>(context, listen: false).uid;
 
-    await Firestore.instance
+    await FirebaseFirestore.instance
         .collection(Keys.user)
-        .document(user.uid)
+        .doc(user.uid)
         .collection(Keys.games)
-        .document(game.id)
-        .setData(game.toMap());
+        .doc(game.id)
+        .set(game.toMap());
 
     game.turn = Keys.yourTurn;
     game.playingWith = user.uid;

@@ -226,15 +226,15 @@ class _AddWordState extends State<AddWord> {
       );
 
       if (widget.question == null)
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection(Keys.questions)
-            .document(question.id)
-            .setData(question.toMap());
+            .doc(question.id)
+            .set(question.toMap());
       else
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection(Keys.questions)
-            .document(question.id)
-            .updateData(question.toMap());
+            .doc(question.id)
+            .update(question.toMap());
 
       dialog.hide();
       Navigator.pop(context);
@@ -268,10 +268,10 @@ class _AddWordState extends State<AddWord> {
 
     if (wordType == null) return;
 
-    var file = await FilePicker.getFile(
-        type: FileType.custom, allowedExtensions: ['.xls', '.xlsx']);
-    if (file == null) return;
-    var extension = file.path.split('.').last;
+    var files = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: ['.xls', '.xlsx']);
+    if (files == null) return;
+    var extension = files.files.single.path.split('.').last;
 
     if (!['xls', 'xlsx'].contains(extension)) {
       StaticInfo.showToast(context, 'Select file is not excel file');
@@ -284,7 +284,7 @@ class _AddWordState extends State<AddWord> {
 
     var questions = List<Question>();
 
-    var bytes = file.readAsBytesSync();
+    var bytes = files.files.single.bytes;
     var decoder = SpreadsheetDecoder.decodeBytes(bytes);
     for (var table in decoder.tables.values) {
       for (var row in table.rows) {
@@ -305,14 +305,13 @@ class _AddWordState extends State<AddWord> {
     }
 
     for (var question in questions)
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(Keys.questions)
-          .document(question.id)
-          .setData(question.toMap());
+          .doc(question.id)
+          .set(question.toMap());
 
     dialog.hide();
 
     Navigator.pop(context);
-
   }
 }

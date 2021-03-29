@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-class HistoryItem{
-  String question,answergiven,correctanswer,qid;
+class HistoryItem {
+  String question, answergiven, correctanswer, qid;
 
   HistoryItem({this.question, this.answergiven, this.correctanswer, this.qid});
 
@@ -21,9 +20,9 @@ class HistoryItem{
       'qid': this.qid,
     } as Map<String, dynamic>;
   }
+
   @override
   String toString() {
     return 'HistoryItem{question: $question, answergiven: $answergiven, correctanswer: $correctanswer, qid: $qid}';
   }
-
 }

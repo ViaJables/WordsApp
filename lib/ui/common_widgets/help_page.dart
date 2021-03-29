@@ -1,14 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:provider/provider.dart';
-import 'package:synonym_app/models/user.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
 
@@ -84,10 +80,16 @@ class _HelpPageState extends State<HelpPage> {
                     },
                     child: Column(
                       children: [
-                        Text('Click on Image to Change',style: TextStyle(
-                            color: Theme.of(context).accentColor,
-                            fontSize: MediaQuery.of(context).size.width * 0.05),),
-                        SizedBox(height: 10,),
+                        Text(
+                          'Click on Image to Change',
+                          style: TextStyle(
+                              color: Theme.of(context).accentColor,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         CircleAvatar(
                             radius: MediaQuery.of(context).size.height * 0.1,
                             backgroundImage:
@@ -96,7 +98,8 @@ class _HelpPageState extends State<HelpPage> {
                                 ? Icon(
                                     Icons.person,
                                     color: Colors.white,
-                                    size: MediaQuery.of(context).size.height * 0.1,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.1,
                                   )
                                 : Container()),
                       ],
@@ -134,16 +137,16 @@ class _HelpPageState extends State<HelpPage> {
 
   Future<void> readData() async {
     print(Constants.useruid.toString());
-    Firestore.instance
-      ..collection('users')
-          .document(Constants.useruid)
-          .get()
-          .then((querySnapshot) {
-        print(querySnapshot.data);
-        imgurl = querySnapshot.data['image'];
-        name.text = querySnapshot.data['UserName'];
-        setState(() {});
-      });
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(Constants.useruid)
+        .get()
+        .then((querySnapshot) {
+      print(querySnapshot.data);
+      imgurl = querySnapshot.data()['image'];
+      name.text = querySnapshot.data()['UserName'];
+      setState(() {});
+    });
   }
 
   uploadimage(File filepath) async {
@@ -151,7 +154,7 @@ class _HelpPageState extends State<HelpPage> {
         .ref()
         .child(DateTime.now().millisecondsSinceEpoch.toString());
     final uploadTask = storageReference.putFile(filepath);
-    var taskSnapshot = await uploadTask.onComplete;
+    var taskSnapshot = await uploadTask.whenComplete;
     imgurl = await storageReference.getDownloadURL();
     setState(() {});
   }
@@ -247,17 +250,17 @@ class _HelpPageState extends State<HelpPage> {
     dialog.show();
     if (imgurl != null) {
       print("adding img");
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
-          .document(Constants.useruid)
-          .updateData({'image': imgurl});
+          .doc(Constants.useruid)
+          .update({'image': imgurl});
     }
     if (name.text != '') {
       print("adding name");
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
-          .document(Constants.useruid)
-          .updateData({'UserName': name.text});
+          .doc(Constants.useruid)
+          .update({'UserName': name.text});
       print("imageadded");
       // AuthHelper helper = AuthHelper();
       // var result =

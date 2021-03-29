@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
-import 'package:synonym_app/ui/start_point/home.dart';
 
 class Starfield extends StatelessWidget {
   @override
@@ -128,7 +127,7 @@ class StarfieldScreenState extends State<StarfieldAnimationScreen>
     super.initState();
 
     screenSize = widget.screenSize;
-    listStar = new List();
+    listStar = [];
     numStars = 30;
 
     // Star
