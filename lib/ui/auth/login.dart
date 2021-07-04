@@ -26,9 +26,10 @@ import 'package:synonym_app/ui/auth/register.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
 import 'package:synonym_app/ui/common_widgets/custom_button.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
+import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:http/http.dart' as http;
-import 'package:synonym_app/ui/start_point/walk_trough_page.dart';
+import 'package:synonym_app/ui/start_point/home.dart';
 
 class Login extends StatefulWidget {
   Login({Key key}) : super(key: key);
@@ -49,196 +50,205 @@ class _LoginState extends State<Login> {
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            // HelpIcon(),
             Expanded(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).padding.top +
-                            MediaQuery.of(context).padding.bottom),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/logo.png',
-                        width: MediaQuery.of(context).size.width * 0.6,
+              child: Stack(
+                children: [
+                  new Starfield(),
+                  SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height -
+                            (MediaQuery.of(context).padding.top +
+                                MediaQuery.of(context).padding.bottom),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Column(
-                          children: <Widget>[
-                            AuthTextField(
-                                title: 'Username', controller: _emailCon),
-                            SizedBox(height: 10),
-                            AuthTextField(
-                              title: 'Password',
-                              controller: _passwordCon,
-                              obscure: true,
-                            ),
-                            SizedBox(height: 30),
-                            // Align(
-                            //   alignment: Alignment.centerRight,
-                            //   child: Padding(
-                            //     padding: const EdgeInsets.all(10),
-                            //     child: Text(
-                            //       'Forgot Password',
-                            //       style: TextStyle(
-                            //           color: Theme.of(context).accentColor,
-                            //           decoration: TextDecoration.underline,
-                            //           fontSize:
-                            //               MediaQuery.of(context).size.width *
-                            //                   0.04),
-                            //     ),
-                            //   ),
-                            // ),
-                            GestureDetector(
-                              onTap: () {
-                                _login();
-                              },
-                              child: Text(
-                                'Sign In',
-                                style: TextStyle(
-                                    color: Theme.of(context).accentColor,
-                                    // decoration: TextDecoration.underline,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.05),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: MediaQuery.of(context).size.height / 40),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'SignIn with ',
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Image.asset(
+                            'assets/logo.png',
+                            width: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: Column(
+                              children: <Widget>[
+                                AuthTextField(
+                                    title: 'Username', controller: _emailCon),
+                                SizedBox(height: 10),
+                                AuthTextField(
+                                  title: 'Password',
+                                  controller: _passwordCon,
+                                  obscure: true,
+                                ),
+                                SizedBox(height: 30),
+                                // Align(
+                                //   alignment: Alignment.centerRight,
+                                //   child: Padding(
+                                //     padding: const EdgeInsets.all(10),
+                                //     child: Text(
+                                //       'Forgot Password',
+                                //       style: TextStyle(
+                                //           color: Theme.of(context).accentColor,
+                                //           decoration: TextDecoration.underline,
+                                //           fontSize:
+                                //               MediaQuery.of(context).size.width *
+                                //                   0.04),
+                                //     ),
+                                //   ),
+                                // ),
+                                GestureDetector(
+                                  onTap: () {
+                                    _login();
+                                  },
+                                  child: Text(
+                                    'Sign In',
                                     style: TextStyle(
                                         color: Theme.of(context).accentColor,
+                                        // decoration: TextDecoration.underline,
                                         fontSize:
                                             MediaQuery.of(context).size.width *
                                                 0.05),
                                   ),
-                                  SizedBox(width: 10),
-                                  Spacer(),
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                ),
+                                SizedBox(height: 10),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: MediaQuery.of(context).size.height /
+                                          40),
+                                  child: Row(
                                     children: [
-                                      SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () {
-                                          dealFbLogin();
-                                        },
-                                        child: Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/facebooklogo.png"),
-                                              )),
-                                        ),
+                                      Text(
+                                        'SignIn with ',
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).accentColor,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.05),
                                       ),
                                       SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () {
-                                          signInWithGoogle();
-                                        },
-                                        child: Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/googlelogo.png"),
-                                              )),
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () {
-                                          signInWithApple();
-                                        },
-                                        child: Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              15,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/applelogo.png"),
-                                              )),
-                                        ),
-                                      ),
+                                      Spacer(),
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SizedBox(width: 10),
+                                          GestureDetector(
+                                            onTap: () {
+                                              dealFbLogin();
+                                            },
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                  image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/facebooklogo.png"),
+                                                  )),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          GestureDetector(
+                                            onTap: () {
+                                              signInWithGoogle();
+                                            },
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                  image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/googlelogo.png"),
+                                                  )),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          GestureDetector(
+                                            onTap: () {
+                                              signInWithApple();
+                                            },
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  15,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                  image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/applelogo.png"),
+                                                  )),
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => Register()));
-                        },
-                        behavior: HitTestBehavior.translucent,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'New here? ',
-                                  style: TextStyle(
-                                      color: Theme.of(context).accentColor,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.05),
-                                ),
-                                TextSpan(
-                                  text: 'Sign up!',
-                                  style: TextStyle(
-                                      color: Theme.of(context).accentColor,
-                                      decoration: TextDecoration.underline,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.05),
-                                ),
+                                  ),
+                                )
                               ],
                             ),
                           ),
-                        ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => Register()));
+                            },
+                            behavior: HitTestBehavior.translucent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'New here? ',
+                                      style: TextStyle(
+                                          color: Theme.of(context).accentColor,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.05),
+                                    ),
+                                    TextSpan(
+                                      text: 'Sign up!',
+                                      style: TextStyle(
+                                          color: Theme.of(context).accentColor,
+                                          decoration: TextDecoration.underline,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.05),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -376,8 +386,7 @@ class _LoginState extends State<Login> {
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => WalkTroughPage()),
-          (route) => false);
+          MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
       if (e.toString() ==
           'PlatformException(ERROR_EMAIL_ALREADY_IN_USE, The email address is already in use by another account., null)') {
@@ -450,8 +459,7 @@ class _LoginState extends State<Login> {
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => WalkTroughPage()),
-          (route) => false);
+          MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
       print(e);
       if (e.toString().contains('was called on null')) {
@@ -533,8 +541,7 @@ class _LoginState extends State<Login> {
       print('All Done');
       dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => WalkTroughPage()),
-          (route) => false);
+          MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
       if (e.toString().contains('canceled')) {
         dialog.hide();

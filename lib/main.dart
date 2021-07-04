@@ -9,6 +9,7 @@ import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/ui/single_player/timercontroller.dart';
 import 'package:synonym_app/ui/start_point/intro_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,12 @@ void main() async {
 class SynonymApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.black, // Color for Android
+        statusBarBrightness:
+            Brightness.dark // Dark == white status bar -- for IOS.
+        ));
+
     print("--------------------------------------------");
     return MultiProvider(
       providers: [

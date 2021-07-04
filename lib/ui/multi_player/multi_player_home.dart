@@ -8,7 +8,7 @@ import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
-import 'package:synonym_app/ui/common_widgets/page_bacground.dart';
+import 'package:synonym_app/ui/common_widgets/page_background.dart';
 import 'package:synonym_app/ui/multi_player/all_users.dart';
 import 'package:synonym_app/ui/multi_player/game_results.dart';
 import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
@@ -46,7 +46,7 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
 
     var user = Provider.of<LocalUser>(context);
 
-    return PageBacground(
+    return PageBackground(
       title: 'multiplayer',
       appBarColor: Theme.of(context).primaryColorDark,
       leading: Image.asset('assets/red_go_back.png'),

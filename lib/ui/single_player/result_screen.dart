@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/common_widgets/page_bacground.dart';
+import 'package:synonym_app/ui/common_widgets/page_background.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -21,11 +21,11 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
-    return PageBacground(
-      appBarColor: Theme.of(context).primaryColor,
+    return PageBackground(
+      appBarColor: Colors.white,
       title: 'results',
       child: Container(
-        color: Colors.white,
+        color: Colors.black,
         child: Column(
           children: <Widget>[
             Expanded(
@@ -95,7 +95,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             'next >'.toUpperCase(),
                             style: TextStyle(
                               // color: Theme.of(context).primaryColor,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                             ),
@@ -129,7 +129,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             '< quit'.toUpperCase(),
                             style: TextStyle(
                               // color: Theme.of(context).primaryColor,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                             ),

@@ -31,7 +31,7 @@ class AuthHelper {
         return null;
       }
     } catch (e) {
-      return e.code;
+      return e.toString();
     }
   }
 

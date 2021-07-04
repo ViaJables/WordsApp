@@ -12,7 +12,8 @@ import 'package:synonym_app/res/static_info.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
 import 'package:synonym_app/ui/common_widgets/custom_button.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
-import 'package:synonym_app/ui/start_point/walk_trough_page.dart';
+import 'package:synonym_app/ui/start_point/home.dart';
+import 'package:synonym_app/ui/shared/starfield.dart';
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -44,94 +45,97 @@ class _RegisterState extends State<Register> {
           children: <Widget>[
             HelpIcon(),
             Expanded(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).padding.top +
-                            MediaQuery.of(context).padding.bottom),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/logo.png',
-                        width: MediaQuery.of(context).size.width * 0.6,
+              child: Stack(
+                children: [
+                  new Starfield(),
+                  SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height -
+                            (MediaQuery.of(context).padding.top +
+                                MediaQuery.of(context).padding.bottom),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Column(
-                          children: <Widget>[
-//                      AuthTextField(title: 'Email', controller: _emailCon),
-//                      SizedBox(height: 10),
-                            AuthTextField(
-                                title: 'Enter a Username',
-                                controller: _userNameCon),
-                            SizedBox(height: 10),
-                            AuthTextField(
-                              title: 'Create a password',
-                              controller: _passwordCon,
-                              obscure: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Image.asset(
+                            'assets/logo.png',
+                            width: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: Column(
+                              children: <Widget>[
+                                AuthTextField(
+                                    title: 'Enter a Username',
+                                    controller: _userNameCon),
+                                SizedBox(height: 10),
+                                AuthTextField(
+                                  title: 'Create a password',
+                                  controller: _passwordCon,
+                                  obscure: true,
+                                ),
+                                SizedBox(height: 10),
+                                AuthTextField(
+                                  title: 'Repeat password',
+                                  controller: _confirmCon,
+                                  obscure: true,
+                                ),
+                                SizedBox(height: 10),
+                                ListTile(
+                                  leading: Checkbox(
+                                    value: termsAndConditionsFlag,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        termsAndConditionsFlag = val;
+                                      });
+                                    },
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      termsAndConditionsFlag =
+                                          !termsAndConditionsFlag;
+                                    });
+                                  },
+                                  title: Text(
+                                      'I have read and agree to the terms of use and the privacy policies of Synonym Antonym'),
+                                ),
+                                SizedBox(height: 10),
+                                ListTile(
+                                  leading: Checkbox(
+                                    value: saleDataFlag,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        saleDataFlag = val;
+                                      });
+                                    },
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      saleDataFlag = !saleDataFlag;
+                                    });
+                                  },
+                                  title: Text(
+                                    'I acknowledge that this app will not sale my data to third party',
+                                  ),
+                                ),
+                                SizedBox(height: 30),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: CustomButton(
+                                    text: 'CREATE ACCOUNT',
+                                    color: Theme.of(context).primaryColor,
+                                    onTap: _register,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            AuthTextField(
-                              title: 'Repeat password',
-                              controller: _confirmCon,
-                              obscure: true,
-                            ),
-                            SizedBox(height: 10),
-                            ListTile(
-                              leading: Checkbox(
-                                value: termsAndConditionsFlag,
-                                onChanged: (val) {
-                                  setState(() {
-                                    termsAndConditionsFlag = val;
-                                  });
-                                },
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  termsAndConditionsFlag =
-                                      !termsAndConditionsFlag;
-                                });
-                              },
-                              title: Text(
-                                  'I have read and agree to the terms of use and the privacy policies of Synonym Antonym'),
-                            ),
-                            SizedBox(height: 10),
-                            ListTile(
-                              leading: Checkbox(
-                                value: saleDataFlag,
-                                onChanged: (val) {
-                                  setState(() {
-                                    saleDataFlag = val;
-                                  });
-                                },
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  saleDataFlag = !saleDataFlag;
-                                });
-                              },
-                              title: Text(
-                                'I acknowledge that this app will not sale my data to third party',
-                              ),
-                            ),
-                            SizedBox(height: 30),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: CustomButton(
-                                text: 'CREATE ACCOUNT',
-                                color: Theme.of(context).primaryColor,
-                                onTap: _register,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -185,10 +189,9 @@ class _RegisterState extends State<Register> {
     if (result == null) {
       Navigator.push(
           context, MaterialPageRoute(builder: (_) => AddProfilePage()));
-      // Navigator.push(
-      //     context, MaterialPageRoute(builder: (_) => WalkTroughPage()));
     } else {
       FocusScope.of(context).requestFocus(FocusNode());
+      print("Result is $result");
       if (result == 'ERROR_INVALID_EMAIL')
         StaticInfo.showToast(context, 'invalid email', duration: 5);
       else if (result == 'ERROR_EMAIL_ALREADY_IN_USE')
@@ -255,8 +258,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
             onPressed: () async {
               await addData();
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => WalkTroughPage()),
-                  (route) => false);
+                  MaterialPageRoute(builder: (_) => Home()), (route) => false);
             },
             child: image != null && name.text != ''
                 ? Text('SAVE', style: style)

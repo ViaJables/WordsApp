@@ -41,12 +41,15 @@ class _AuthTextFieldState extends State<AuthTextField> {
           controller: widget.controller,
           autofocus: false,
           decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(0))),
             suffixIcon: !widget.obscure
                 ? null
                 : IconButton(
-                    icon: Icon(obscure ?Icons.visibility: Icons.visibility_off),
+                    icon:
+                        Icon(obscure ? Icons.visibility : Icons.visibility_off),
                     onPressed: () {
                       setState(() {
                         obscure = !obscure;

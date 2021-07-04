@@ -8,6 +8,7 @@ import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/res/static_info.dart';
 import 'package:toast/toast.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 class AddWord extends StatefulWidget {
   final Question question;
@@ -268,15 +269,15 @@ class _AddWordState extends State<AddWord> {
 
     if (wordType == null) return;
 
-    var files = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['.xls', '.xlsx']);
-    if (files == null) return;
-    var extension = files.files.single.path.split('.').last;
+    // var files = await FilePicker.platform.pickFiles(
+    //     type: FileType.custom, allowedExtensions: ['.xls', '.xlsx', '.ods']);
+    // if (files == null) return;
+    // var extension = files.files.single.path.split('.').last;
 
-    if (!['xls', 'xlsx'].contains(extension)) {
-      StaticInfo.showToast(context, 'Select file is not excel file');
-      return;
-    }
+    // if (!['xls', 'xlsx', 'ods'].contains(extension)) {
+    //   StaticInfo.showToast(context, 'Select file is not excel file');
+    //   return;
+    // }
 
     ProgressDialog dialog = ProgressDialog(context);
     dialog.style(message: 'Please wait...');
@@ -284,24 +285,30 @@ class _AddWordState extends State<AddWord> {
 
     var questions = List<Question>();
 
-    var bytes = files.files.single.bytes;
+    var data = await rootBundle.load("assets/QuestionData.xlsx");
+    List<int> bytes =
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var decoder = SpreadsheetDecoder.decodeBytes(bytes);
-    for (var table in decoder.tables.values) {
-      for (var row in table.rows) {
-        var word = row[0];
-        var correctAns = row[1];
-        var answers = row
-          ..removeAt(0)
-          ..shuffle();
+    //var bytes = files.files.single.bytes;
+    //var decoder = SpreadsheetDecoder.decodeBytes(bytes);
+    var table = decoder.tables['Synonyms'];
+    print("Got a table");
+    for (var row in table.rows) {
+      print("First column: ${row[0]}");
+      print("Second column: ${row[1]}");
+      var word = row[0];
+      var correctAns = row[1];
+      var answers = row
+        ..removeAt(0)
+        ..shuffle();
 
-        questions.add(Question(
-          id: Uuid().v1(),
-          word: word as String,
-          synonymOrAntonym: wordType,
-          correctAnswer: answers.indexWhere((element) => element == correctAns),
-          answers: List<String>.from(answers),
-        ));
-      }
+      questions.add(Question(
+        id: Uuid().v1(),
+        word: word as String,
+        synonymOrAntonym: wordType,
+        correctAnswer: answers.indexWhere((element) => element == correctAns),
+        answers: List<String>.from(answers),
+      ));
     }
 
     for (var question in questions)

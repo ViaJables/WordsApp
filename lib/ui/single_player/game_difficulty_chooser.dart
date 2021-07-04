@@ -4,6 +4,8 @@ import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/single_player/word_type_chooser.dart';
+import 'package:synonym_app/ui/shared/expandable_button.dart';
+import 'package:synonym_app/ui/shared/starfield.dart';
 
 class GameDifficultyChooser extends StatefulWidget {
   @override
@@ -15,85 +17,131 @@ class _GameDifficultyChooserState extends State<GameDifficultyChooser> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      body: Column(
-        children: <Widget>[
-          SafeArea(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.arrow_back_ios),
-                  color: Colors.white,
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    'CHoose mode'.toUpperCase(),
-                    style: TextStyle(
+      body: Stack(
+        children: [
+          new Starfield(),
+          Column(
+            children: [
+              SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
                       color: Colors.white,
-                      fontSize: MediaQuery.of(context).size.width * 0.06,
-                      fontWeight: FontWeight.bold,
+                      onPressed: () => Navigator.pop(context),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              'HISTORY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.07,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Spacer()
+                  ],
                 ),
-                HelpIcon(color: Colors.white),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  _ExpansionTileBackground(
-                    title: 'Timed',
-                    children: [
-                      _ExpansionTileItem(
-                        txt: 'Easy',
-                        onTap: () =>
-                            _startGame(Keys.timed, difficulty: Keys.easy),
-                      ),
-                      _ExpansionTileItem(
-                        txt: 'Medium',
-                        onTap: () =>
-                            _startGame(Keys.timed, difficulty: Keys.medium),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: _ExpansionTileItem(
-                          txt: 'Hard',
-                          onTap: () =>
-                              _startGame(Keys.timed, difficulty: Keys.hard),
+              ),
+              Row(
+                children: [
+                  Column(
+                    children: <Widget>[
+                      SafeArea(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.arrow_back_ios),
+                              color: Colors.white,
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Text(
+                                'CHoose mode'.toUpperCase(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.06,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            HelpIcon(color: Colors.white),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  _ExpansionTileBackground(
-                    title: 'Puzzle',
-                    children: [
-                      _ExpansionTileItem(
-                        txt: 'Timed',
-                        onTap: () => _startGame(
-                          Keys.puzzle,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: _ExpansionTileItem(
-                          txt: 'Continous',
-                          onTap: () =>
-                              _startGame(Keys.puzzle, continuous: true),
+                      Expanded(
+                        child: Container(
+                          color: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ExpansionTileBackground(
+                                title: 'Timed',
+                                children: [
+                                  ExpansionTileItem(
+                                    txt: 'Easy',
+                                    onTap: () => _startGame(Keys.timed,
+                                        difficulty: Keys.easy),
+                                  ),
+                                  ExpansionTileItem(
+                                    txt: 'Medium',
+                                    onTap: () => _startGame(Keys.timed,
+                                        difficulty: Keys.medium),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5),
+                                    child: ExpansionTileItem(
+                                      txt: 'Hard',
+                                      onTap: () => _startGame(Keys.timed,
+                                          difficulty: Keys.hard),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              ExpansionTileBackground(
+                                title: 'Puzzle',
+                                children: [
+                                  ExpansionTileItem(
+                                    txt: 'Timed',
+                                    onTap: () => _startGame(
+                                      Keys.puzzle,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5),
+                                    child: ExpansionTileItem(
+                                      txt: 'Continous',
+                                      onTap: () => _startGame(Keys.puzzle,
+                                          continuous: true),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -112,72 +160,5 @@ class _GameDifficultyChooserState extends State<GameDifficultyChooser> {
                   continuous: continuous,
                   difficulty: difficulty,
                 )));
-  }
-}
-
-class _ExpansionTileBackground extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  _ExpansionTileBackground({
-    @required this.title,
-    @required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
-        border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
-        borderRadius: BorderRadius.all(Radius.circular(7)),
-      ),
-      child: ExpansionTile(
-        title: Center(
-          child: Text(
-            title,
-            style: TextStyle(
-                color: Theme.of(context).accentColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 17),
-          ),
-        ),
-        trailing: SizedBox(height: 1, width: 1),
-        children: children,
-      ),
-    );
-  }
-}
-
-class _ExpansionTileItem extends StatelessWidget {
-  final String txt;
-  final Function onTap;
-
-  _ExpansionTileItem({
-    @required this.txt,
-    @required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: MaterialButton(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            side: BorderSide(
-                color: Theme.of(context).accentColor.withOpacity(0.5))),
-        child: Text(
-          txt,
-          style: TextStyle(
-              fontSize: 15,
-              color: Theme.of(context).accentColor,
-              fontWeight: FontWeight.w600),
-        ),
-        minWidth: double.infinity,
-        onPressed: onTap,
-      ),
-    );
   }
 }

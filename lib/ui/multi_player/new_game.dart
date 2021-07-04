@@ -4,7 +4,7 @@ import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
-import 'package:synonym_app/ui/common_widgets/page_bacground.dart';
+import 'package:synonym_app/ui/common_widgets/page_background.dart';
 import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
 
 class NewGame extends StatefulWidget {
@@ -160,7 +160,7 @@ class _NewGameState extends State<NewGame> {
               MaterialPageRoute(builder: (_) => MultiPlayerGame(widget.game)));
         });
       },
-      child: PageBacground(
+      child: PageBackground(
         title: 'New Game',
         appBarColor: Theme.of(context).primaryColor,
         child: Center(

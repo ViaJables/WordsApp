@@ -1,35 +1,41 @@
 {
   "project_info": {
-    "project_number": "281583775803",
-    "firebase_url": "https://synonym-antonym-app.firebaseio.com",
-    "project_id": "synonym-antonym-app",
-    "storage_bucket": "synonym-antonym-app.appspot.com"
+    "project_number": "860833691788",
+    "project_id": "synonym-38487",
+    "storage_bucket": "synonym-38487.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:281583775803:android:98fa2ea19064599b7aac1e",
+        "mobilesdk_app_id": "1:860833691788:android:17a6e024fbbb41085f23a9",
         "android_client_info": {
-          "package_name": "com.ithobbies.synonym_app"
+          "package_name": "com.rikkuwolf.synonym"
         }
       },
       "oauth_client": [
         {
-          "client_id": "281583775803-13i5c122r2po5k0lfe6md073m2fkne7n.apps.googleusercontent.com",
+          "client_id": "860833691788-8cjr9kgvuv5e1u0v7pb6lt5j0b0cplhh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyARJmznQTmOmpQkN5ThLaIV1_GBl45hpas"
+          "current_key": "AIzaSyAWfPUv1DemGmcLUJZkBC6URxQyd79dOEs"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "281583775803-13i5c122r2po5k0lfe6md073m2fkne7n.apps.googleusercontent.com",
+              "client_id": "860833691788-8cjr9kgvuv5e1u0v7pb6lt5j0b0cplhh.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "860833691788-t0jkbbij44tsmo5t4150sqpntqhgadlo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.synonym.antonym"
+              }
             }
           ]
         }

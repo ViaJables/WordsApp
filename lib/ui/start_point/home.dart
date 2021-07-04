@@ -12,7 +12,14 @@ import 'package:synonym_app/ui/multi_player/all_users.dart';
 import 'package:synonym_app/ui/multi_player/game_results.dart';
 import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
-import 'package:synonym_app/ui/single_player/game_difficulty_chooser.dart';
+import 'package:synonym_app/ui/shared/animated_logo.dart';
+import 'package:synonym_app/ui/single_player/word_type_chooser.dart';
+import 'package:synonym_app/ui/shared/grid.dart';
+import 'package:synonym_app/ui/shared/expandable_button.dart';
+import 'package:synonym_app/models/question.dart';
+import 'package:synonym_app/helpers/auth_helper.dart';
+import 'package:synonym_app/ui/start_point/walk_through_page.dart';
+import 'package:synonym_app/ui/profile/help_page.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -21,12 +28,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool _animateFlag;
+  var loggedIn = false;
 
   @override
   void initState() {
     super.initState();
 
-    _animateFlag = false;
+    setState(() {
+      loggedIn = AuthHelper().getCurrentUser(context) == null;
+    });
 
     Future.delayed(Keys.startAnimDuration).then((val) {
       setState(() {
@@ -35,77 +45,244 @@ class _HomeState extends State<Home> {
     });
   }
 
+  _startGame(String type, String difficulty) {
+    Provider.of<QuestionProvider>(context, listen: false).reset();
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => WordTypeChooser(
+                  gameType: type,
+                  continuous: false,
+                  difficulty: difficulty,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<LocalUser>(context);
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Stack(
           children: [
             new Starfield(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(0, 35, 0, 0),
+                alignment: Alignment.center,
+                height: 150.0,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    GridPainter(),
+                    //AllUsers(),
+                  ],
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                  color: Colors.black,
+                  alignment: Alignment.center,
+                  height: 10.0,
+                  width: double.infinity,
+                  child: SizedBox(
+                    height: 5,
+                  )),
+            ),
             Column(
               children: <Widget>[
-                SizedBox(
-                  height: 60,
-                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Image.asset(
-                          'assets/logo.png',
-                          width: MediaQuery.of(context).size.width * 0.6,
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 10),
-                              _Btn(
-                                text: 'single player',
-                                color: Theme.of(context).primaryColor,
-                                onPress: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) =>
-                                            GameDifficultyChooser())),
-                              ),
-                              SizedBox(height: 10),
-                              _Btn(
-                                text: 'multiplayer',
-                                color: Theme.of(context).primaryColorDark,
-                                onPress: () {
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 5, right: 30),
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.075,
+                              width: MediaQuery.of(context).size.width * 0.075,
+                              child: new IconButton(
+                                icon: Icon(Icons.person,
+                                    size: MediaQuery.of(context).size.width *
+                                        0.075),
+                                color: Colors.grey,
+                                onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) => AllUsers()));
+                                      builder: (_) => HelpPage()));
                                 },
                               ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.power_settings_new),
-                                onPressed: () async {
-                                  AuthHelper().signOut().then((val) {
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (_) => Login()),
-                                        (_) => false);
-                                  });
-                                },
-                              ),
-                            ],
+                            ),
                           ),
+                        ),
+                        AnimatedLogo(
+                            height: MediaQuery.of(context).size.width * 0.6),
+                        SizedBox(
+                          height: 60,
+                        ),
+                        Column(
+                          children: <Widget>[
+                            SizedBox(height: 10),
+                            Align(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 0),
+                                child: Container(
+                                  color: Colors.transparent,
+                                  child: ExpansionTileBackground(
+                                    title: 'SOLO PLAY',
+                                    color: Theme.of(context).accentColor,
+                                    children: [
+                                      ExpansionTileItem(
+                                        txt: 'Easy',
+                                        backgroundColor: Colors.transparent,
+                                        onTap: () => {
+                                          if (loggedIn)
+                                            {_startGame(Keys.timed, Keys.easy)}
+                                          else
+                                            {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          WalkThroughPage(
+                                                            difficulty:
+                                                                Keys.easy,
+                                                          )))
+                                            }
+                                        },
+                                      ),
+                                      ExpansionTileItem(
+                                          txt: 'Medium',
+                                          backgroundColor: Colors.transparent,
+                                          onTap: () => {
+                                                if (loggedIn)
+                                                  {
+                                                    _startGame(
+                                                        Keys.timed, Keys.medium)
+                                                  }
+                                                else
+                                                  {
+                                                    Navigator.of(context).push(
+                                                        MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                WalkThroughPage(
+                                                                  difficulty:
+                                                                      Keys.medium,
+                                                                )))
+                                                  }
+                                              }),
+                                      ExpansionTileItem(
+                                          txt: 'Hard',
+                                          backgroundColor: Colors.transparent,
+                                          onTap: () => {
+                                                if (loggedIn)
+                                                  {
+                                                    _startGame(
+                                                        Keys.timed, Keys.hard)
+                                                  }
+                                                else
+                                                  {
+                                                    Navigator.of(context).push(
+                                                        MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                WalkThroughPage(
+                                                                  difficulty:
+                                                                      Keys.hard,
+                                                                )))
+                                                  }
+                                              }),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                            ),
+                            SizedBox(height: 30),
+                            Align(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 48),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (loggedIn) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => AllUsers()));
+                                    }
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 5)
+                                      ],
+                                      border: Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 1),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(7)),
+                                    ),
+                                    padding: EdgeInsets.symmetric(vertical: 15),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        !loggedIn
+                                            ? Icon(Icons.lock,
+                                                color: Colors.white)
+                                            : SizedBox.shrink(),
+                                        Text(
+                                          "Ranked Play".toUpperCase(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 25),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            !loggedIn
+                                ? GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                              builder: (_) => Login()),
+                                          (_) => false);
+                                    },
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      height: 30.0,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Center(
+                                        child: Text(
+                                          "login",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 20),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(height: 0),
+                          ],
                         ),
                         Container(
                           height: MediaQuery.of(context).size.height / 3,
@@ -257,10 +434,26 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            AllThree(
-              color: Colors.white,
-            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tappableAnimatedContainer(String txt, Color color, Function onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Keys.playAnimDuration,
+        color: color,
+        height: 75.0,
+        width: _animateFlag ? MediaQuery.of(context).size.width : 150,
+        child: Center(
+          child: Text(
+            txt.toUpperCase(),
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25),
+          ),
         ),
       ),
     );
