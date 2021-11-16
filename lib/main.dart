@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:admob_flutter/admob_flutter.dart';
+//import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -10,10 +10,11 @@ import 'package:synonym_app/ui/single_player/timercontroller.dart';
 import 'package:synonym_app/ui/start_point/intro_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Admob.initialize();
+  //Admob.initialize();
   await Firebase.initializeApp();
   // appId: Platform.isAndroid
   //     ? 'ca-app-pub-3042907838603854~5345471733'
@@ -41,9 +42,12 @@ class SynonymApp extends StatelessWidget {
       child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            fontFamily: 'Retro',
+            textTheme: GoogleFonts.rubikTextTheme(
+              Theme.of(context).textTheme,
+            ),
             primaryColor: Color.fromRGBO(239, 23, 115, 1),
-            accentColor: Color.fromRGBO(0, 182, 232, 1),
+            secondaryHeaderColor: Color.fromRGBO(0, 182, 232, 1),
+            backgroundColor: Color.fromRGBO(37, 38, 65, 0.7),
           ),
           home: IntroScreen()),
     );

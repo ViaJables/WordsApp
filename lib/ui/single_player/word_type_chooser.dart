@@ -64,7 +64,7 @@ class WordTypeChooser extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(10),
                               child: Text(
-                                'CHOOSE WORD TYPE',
+                                'Select Game Type',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize:
@@ -84,7 +84,7 @@ class WordTypeChooser extends StatelessWidget {
                   child: Container(
                     color: Colors.transparent,
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 60),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -95,7 +95,7 @@ class WordTypeChooser extends StatelessWidget {
                             width: double.infinity,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.transparent,
+                              color: Color.fromRGBO(37, 38, 65, 0.7),
                               boxShadow: [
                                 BoxShadow(color: Colors.black26, blurRadius: 5)
                               ],
@@ -103,14 +103,14 @@ class WordTypeChooser extends StatelessWidget {
                                   color: Theme.of(context).accentColor,
                                   width: 1),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(7)),
+                                  BorderRadius.all(Radius.circular(30)),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              Keys.synonym.toUpperCase(),
+                              "Synonyms",
                               style: TextStyle(
                                   color: Theme.of(context).accentColor,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
                                   fontSize: 28),
                             ),
                           ),
@@ -122,7 +122,7 @@ class WordTypeChooser extends StatelessWidget {
                             width: double.infinity,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.transparent,
+                              color: Color.fromRGBO(37, 38, 65, 0.7),
                               boxShadow: [
                                 BoxShadow(color: Colors.black26, blurRadius: 5)
                               ],
@@ -130,14 +130,14 @@ class WordTypeChooser extends StatelessWidget {
                                   color: Theme.of(context).primaryColor,
                                   width: 1),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(7)),
+                                  BorderRadius.all(Radius.circular(30)),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              Keys.antonym.toUpperCase(),
+                              "Antonyms",
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
                                   fontSize: 28),
                             ),
                           ),
@@ -149,20 +149,20 @@ class WordTypeChooser extends StatelessWidget {
                             width: double.infinity,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.transparent,
+                              color: Color.fromRGBO(37, 38, 65, 0.7),
                               boxShadow: [
                                 BoxShadow(color: Colors.black26, blurRadius: 5)
                               ],
                               border: Border.all(color: Colors.white, width: 1),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(7)),
+                                  BorderRadius.all(Radius.circular(30)),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              'both'.toUpperCase(),
+                              "Both",
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
                                   fontSize: 28),
                             ),
                           ),

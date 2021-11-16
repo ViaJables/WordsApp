@@ -9,7 +9,7 @@ class TimerController extends GetxController {
   setTimer(int newTime) {
     timevalue.value = newTime;
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      timevalue.value = timevalue.value - 1;
+      timevalue.value = timevalue.value; //- 1;
       if (timevalue.value == 0) {
         timer.cancel();
       }

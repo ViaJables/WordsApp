@@ -53,7 +53,7 @@ class _SplashState extends State<Splash> {
               child: MaterialButton(
                 onPressed: () async {
                   var page;
-                  if((await AuthHelper().getCurrentUser(context)) == null)
+                  if ((await AuthHelper().getCurrentUser(context)) == null)
                     page = Login();
                   else
                     page = Home();
@@ -67,7 +67,7 @@ class _SplashState extends State<Splash> {
                 minWidth: double.infinity,
                 color: Theme.of(context).primaryColor,
                 child: Text(
-                  'get started'.toUpperCase(),
+                  'Get Started',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: MediaQuery.of(context).size.width * 0.055,
@@ -79,6 +79,5 @@ class _SplashState extends State<Splash> {
         ],
       ),
     );
-
   }
 }

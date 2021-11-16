@@ -10,8 +10,6 @@ import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/static_info.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
-import 'package:synonym_app/ui/common_widgets/custom_button.dart';
-import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 
@@ -24,6 +22,7 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   TextEditingController _userNameCon = TextEditingController();
+  TextEditingController _emailCon = TextEditingController();
   TextEditingController _passwordCon = TextEditingController();
   TextEditingController _confirmCon = TextEditingController();
 
@@ -40,106 +39,123 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            HelpIcon(),
-            Expanded(
-              child: Stack(
-                children: [
-                  new Starfield(),
-                  SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height -
-                            (MediaQuery.of(context).padding.top +
-                                MediaQuery.of(context).padding.bottom),
-                      ),
+      backgroundColor: Theme.of(context).primaryColor,
+      body: Stack(
+        children: [
+          Starfield(),
+          Column(
+            children: <Widget>[
+              SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Colors.white,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          Image.asset(
-                            'assets/logo.png',
-                            width: MediaQuery.of(context).size.width * 0.6,
-                          ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
-                            child: Column(
-                              children: <Widget>[
-                                AuthTextField(
-                                    title: 'Enter a Username',
-                                    controller: _userNameCon),
-                                SizedBox(height: 10),
-                                AuthTextField(
-                                  title: 'Create a password',
-                                  controller: _passwordCon,
-                                  obscure: true,
-                                ),
-                                SizedBox(height: 10),
-                                AuthTextField(
-                                  title: 'Repeat password',
-                                  controller: _confirmCon,
-                                  obscure: true,
-                                ),
-                                SizedBox(height: 10),
-                                ListTile(
-                                  leading: Checkbox(
-                                    value: termsAndConditionsFlag,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        termsAndConditionsFlag = val;
-                                      });
-                                    },
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      termsAndConditionsFlag =
-                                          !termsAndConditionsFlag;
-                                    });
-                                  },
-                                  title: Text(
-                                      'I have read and agree to the terms of use and the privacy policies of Synonym Antonym'),
-                                ),
-                                SizedBox(height: 10),
-                                ListTile(
-                                  leading: Checkbox(
-                                    value: saleDataFlag,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        saleDataFlag = val;
-                                      });
-                                    },
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      saleDataFlag = !saleDataFlag;
-                                    });
-                                  },
-                                  title: Text(
-                                    'I acknowledge that this app will not sale my data to third party',
-                                  ),
-                                ),
-                                SizedBox(height: 30),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: CustomButton(
-                                    text: 'CREATE ACCOUNT',
-                                    color: Theme.of(context).primaryColor,
-                                    onTap: _register,
-                                  ),
-                                ),
-                              ],
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              'REGISTER',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.07,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    Spacer(),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height -
+                          (MediaQuery.of(context).padding.top +
+                              MediaQuery.of(context).padding.bottom),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Column(
+                            children: <Widget>[
+                              AuthTextField(
+                                  title: 'Username', controller: _userNameCon),
+                              SizedBox(height: 30),
+                              AuthTextField(
+                                  title: 'Email', controller: _emailCon),
+                              SizedBox(height: 30),
+                              AuthTextField(
+                                title: 'Create a password',
+                                controller: _passwordCon,
+                                obscure: true,
+                              ),
+                              SizedBox(height: 30),
+                              AuthTextField(
+                                title: 'Repeat password',
+                                controller: _confirmCon,
+                                obscure: true,
+                              ),
+                              SizedBox(height: 30),
+                              GestureDetector(
+                                onTap: () {
+                                  _register();
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black26, blurRadius: 5)
+                                    ],
+                                    border: Border.all(
+                                        color: Theme.of(context).accentColor,
+                                        width: 1),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(7)),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Create account".toUpperCase(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 25),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -148,7 +164,7 @@ class _RegisterState extends State<Register> {
     FocusScope.of(context).requestFocus(FocusNode());
 
     String userName = _userNameCon.text.trim().toLowerCase();
-    String email = '$userName@synonym.com';
+    String email = _emailCon.text.trim().toLowerCase();
     String password = _passwordCon.text;
     String confirm = _confirmCon.text;
 
@@ -162,9 +178,6 @@ class _RegisterState extends State<Register> {
       return;
     } else if (password != confirm) {
       StaticInfo.showToast(context, 'password does not match', duration: 2);
-      return;
-    } else if (!termsAndConditionsFlag) {
-      StaticInfo.showToast(context, 'Accept terms and conditions', duration: 2);
       return;
     }
 
@@ -187,8 +200,7 @@ class _RegisterState extends State<Register> {
     dialog.hide();
 
     if (result == null) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => AddProfilePage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
     } else {
       FocusScope.of(context).requestFocus(FocusNode());
       print("Result is $result");

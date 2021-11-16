@@ -8,8 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
-//import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
@@ -47,212 +45,112 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Stack(
-                children: [
-                  new Starfield(),
-                  SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height -
-                            (MediaQuery.of(context).padding.top +
-                                MediaQuery.of(context).padding.bottom),
-                      ),
+      backgroundColor: Theme.of(context).primaryColor,
+      body: Stack(
+        children: [
+          Starfield(),
+          Column(
+            children: <Widget>[
+              SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Colors.white,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          Image.asset(
-                            'assets/logo.png',
-                            width: MediaQuery.of(context).size.width * 0.6,
-                          ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
-                            child: Column(
-                              children: <Widget>[
-                                AuthTextField(
-                                    title: 'Username', controller: _emailCon),
-                                SizedBox(height: 10),
-                                AuthTextField(
-                                  title: 'Password',
-                                  controller: _passwordCon,
-                                  obscure: true,
-                                ),
-                                SizedBox(height: 30),
-                                // Align(
-                                //   alignment: Alignment.centerRight,
-                                //   child: Padding(
-                                //     padding: const EdgeInsets.all(10),
-                                //     child: Text(
-                                //       'Forgot Password',
-                                //       style: TextStyle(
-                                //           color: Theme.of(context).accentColor,
-                                //           decoration: TextDecoration.underline,
-                                //           fontSize:
-                                //               MediaQuery.of(context).size.width *
-                                //                   0.04),
-                                //     ),
-                                //   ),
-                                // ),
-                                GestureDetector(
-                                  onTap: () {
-                                    _login();
-                                  },
-                                  child: Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                        color: Theme.of(context).accentColor,
-                                        // decoration: TextDecoration.underline,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.05),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      top: MediaQuery.of(context).size.height /
-                                          40),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'SignIn with ',
-                                        style: TextStyle(
-                                            color:
-                                                Theme.of(context).accentColor,
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.05),
-                                      ),
-                                      SizedBox(width: 10),
-                                      Spacer(),
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          SizedBox(width: 10),
-                                          GestureDetector(
-                                            onTap: () {
-                                              dealFbLogin();
-                                            },
-                                            child: Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                  image: DecorationImage(
-                                                    image: AssetImage(
-                                                        "assets/facebooklogo.png"),
-                                                  )),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          GestureDetector(
-                                            onTap: () {
-                                              signInWithGoogle();
-                                            },
-                                            child: Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                  image: DecorationImage(
-                                                    image: AssetImage(
-                                                        "assets/googlelogo.png"),
-                                                  )),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          GestureDetector(
-                                            onTap: () {
-                                              signInWithApple();
-                                            },
-                                            child: Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  15,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                  image: DecorationImage(
-                                                    image: AssetImage(
-                                                        "assets/applelogo.png"),
-                                                  )),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => Register()));
-                            },
-                            behavior: HitTestBehavior.translucent,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'New here? ',
-                                      style: TextStyle(
-                                          color: Theme.of(context).accentColor,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.05),
-                                    ),
-                                    TextSpan(
-                                      text: 'Sign up!',
-                                      style: TextStyle(
-                                          color: Theme.of(context).accentColor,
-                                          decoration: TextDecoration.underline,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.05),
-                                    ),
-                                  ],
-                                ),
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.07,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    Spacer(),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height -
+                        (MediaQuery.of(context).padding.top +
+                            MediaQuery.of(context).padding.bottom),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          children: <Widget>[
+                            AuthTextField(
+                                title: 'Email', controller: _emailCon),
+                            SizedBox(height: 30),
+                            AuthTextField(
+                              title: 'Password',
+                              controller: _passwordCon,
+                              obscure: true,
+                            ),
+                            SizedBox(height: 45),
+                            GestureDetector(
+                              onTap: () {
+                                _login();
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).backgroundColor,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black26, blurRadius: 5)
+                                  ],
+                                  border: Border.all(
+                                      color: Theme.of(context).accentColor,
+                                      width: 1),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30)),
+                                ),
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Login",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 25),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -285,62 +183,7 @@ class _LoginState extends State<Login> {
     await pref.setString(Keys.user, json.encode(user.toMap()));
   }
 
-  // ------------------- Facebook Login Start ------------------ //
-  Future<void> dealFbLogin() async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
-    final facebookLogin = FacebookLogin();
-    final result = await facebookLogin.logIn(['email']);
-    print(result.errorMessage);
-    print("========================");
-    print(result.status);
 
-    String token = '';
-    http.Response graphResponse;
-    Map<String, dynamic> profile;
-    FacebookAccessToken accessToken;
-
-    if (result != null) {
-      switch (result.status) {
-        case FacebookLoginStatus.loggedIn:
-          setState(() {
-            pleaseWait = true;
-          });
-          accessToken = await result.accessToken;
-          token = accessToken.token;
-          graphResponse = await http.get(Uri.https(
-              'jsonplaceholder.typicode.com',
-              'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${token}'));
-          profile = json.decode(graphResponse.body);
-          print('This came from Facebook Response $profile');
-          showAlertDialog(true);
-          print('''
-         ++++++PROFILE: ${profile}
-         Token: ${accessToken.token}
-         User id: ${accessToken.userId}
-         Expires: ${accessToken.expires}
-         Permissions: ${accessToken.permissions}
-         Declined permissions: ${accessToken.declinedPermissions}
-         ''');
-          await fbAuth(profile['email'], profile['name'], profile['id'], token);
-          setState(() {
-            pleaseWait = false;
-          });
-          break;
-        case FacebookLoginStatus.cancelledByUser:
-//          _showMessage('----Login cancelled by the user.');
-          dialog.hide();
-          break;
-        case FacebookLoginStatus.error:
-          print("error in logging in user");
-          break;
-      }
-    }
-  }
 
   fbAuth(String email, String name, String id, String token) async {
     ProgressDialog dialog = ProgressDialog(context);
@@ -569,10 +412,9 @@ class _LoginState extends State<Login> {
     );
     dialog.show();
 
-    if (email == 'admin')
+    if (email == 'admin') {
       email += '@admin.com';
-    else
-      email += '@synonym.com';
+    }
 
     AuthHelper helper = AuthHelper();
     String result = await helper.login(context, email, password);

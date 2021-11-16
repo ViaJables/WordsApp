@@ -37,6 +37,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
               color: Theme.of(context).accentColor,
               fontSize: MediaQuery.of(context).size.width * 0.05),
         ),
+        SizedBox(height: 7.5),
         TextField(
           controller: widget.controller,
           autofocus: false,
@@ -44,7 +45,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(0))),
+                borderRadius: BorderRadius.all(Radius.circular(8))),
             suffixIcon: !widget.obscure
                 ? null
                 : IconButton(

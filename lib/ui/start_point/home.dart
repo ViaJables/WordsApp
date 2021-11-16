@@ -6,7 +6,7 @@ import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
-import 'package:synonym_app/ui/auth/login.dart';
+import 'package:synonym_app/ui/auth/login_start.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/multi_player/all_users.dart';
 import 'package:synonym_app/ui/multi_player/game_results.dart';
@@ -20,6 +20,9 @@ import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/ui/start_point/walk_through_page.dart';
 import 'package:synonym_app/ui/profile/help_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:synonym_app/ui/single_player/round_completed.dart';
+import 'package:synonym_app/ui/leaderboard/leaderboard.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -35,7 +38,8 @@ class _HomeState extends State<Home> {
     super.initState();
 
     setState(() {
-      loggedIn = AuthHelper().getCurrentUser(context) == null;
+      loggedIn = FirebaseAuth.instance.currentUser != null;
+      print("Logged in is ${loggedIn}");
     });
 
     Future.delayed(Keys.startAnimDuration).then((val) {
@@ -102,7 +106,7 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Align(
-                          alignment: Alignment.topRight,
+                          alignment: Alignment.topLeft,
                           child: Padding(
                             padding: EdgeInsets.only(top: 5, right: 30),
                             child: SizedBox(
@@ -121,8 +125,8 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                        AnimatedLogo(
-                            height: MediaQuery.of(context).size.width * 0.6),
+
+
                         SizedBox(
                           height: 60,
                         ),
@@ -221,7 +225,7 @@ class _HomeState extends State<Home> {
                                     width: double.infinity,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: Colors.transparent,
+                                      color: Color.fromRGBO(37, 38, 65, 0.7),
                                       boxShadow: [
                                         BoxShadow(
                                             color: Colors.black26,
@@ -231,7 +235,7 @@ class _HomeState extends State<Home> {
                                           color: Theme.of(context).primaryColor,
                                           width: 1),
                                       borderRadius:
-                                          BorderRadius.all(Radius.circular(7)),
+                                          BorderRadius.all(Radius.circular(30)),
                                     ),
                                     padding: EdgeInsets.symmetric(vertical: 15),
                                     child: Row(
@@ -261,10 +265,10 @@ class _HomeState extends State<Home> {
                             !loggedIn
                                 ? GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).pushAndRemoveUntil(
+                                      Navigator.push(
+                                          context,
                                           MaterialPageRoute(
-                                              builder: (_) => Login()),
-                                          (_) => false);
+                                              builder: (_) => LoginStart()));
                                     },
                                     child: Container(
                                       color: Colors.transparent,
@@ -282,6 +286,29 @@ class _HomeState extends State<Home> {
                                     ),
                                   )
                                 : SizedBox(height: 0),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => Leaderboard()));
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                height: 30.0,
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(
+                                  child: Text(
+                                    "leaderboard",
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 20),
+                                  ),
+                                ),
+                              ),
+                            )
+
                           ],
                         ),
                         Container(
