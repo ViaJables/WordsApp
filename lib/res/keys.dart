@@ -8,7 +8,7 @@ class Keys
   static const String questions = 'questions';
 
   static const int totalTurns = 5;
-  static const int minimumQuestions = 20; //todo: change it to 200
+  static const int minimumQuestions = 20;
 
   static const String synonym = 'synonym';
   static const String antonym = 'antonym';

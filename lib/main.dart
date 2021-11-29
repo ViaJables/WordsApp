@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/models/localuser.dart';
-import 'package:synonym_app/ui/single_player/timercontroller.dart';
 import 'package:synonym_app/ui/start_point/intro_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +34,6 @@ class SynonymApp extends StatelessWidget {
     print("--------------------------------------------");
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Timercontroller()),
         Provider(create: (_) => QuestionProvider()),
         Provider(create: (_) => LocalUser.empty()),
       ],

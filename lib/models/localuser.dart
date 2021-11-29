@@ -1,9 +1,10 @@
 class LocalUser {
   String uid, name, email, image, userName;
+  int lives;
 
   LocalUser.empty();
 
-  LocalUser({this.uid, this.name, this.email, this.image, this.userName});
+  LocalUser({this.uid, this.name, this.email, this.image, this.userName, this.lives});
 
   factory LocalUser.fromMap(Map<String, dynamic> map) {
     return new LocalUser(
@@ -12,6 +13,7 @@ class LocalUser {
       name: map['name'] as String,
       email: map['email'] as String,
       image: map['image'] as String,
+      lives: map['lives'] as int,
     );
   }
 
@@ -23,6 +25,7 @@ class LocalUser {
       'email': this.email,
       'image': this.image,
       'userName': this.userName,
+      'lives': this.lives,
     } as Map<String, dynamic>;
   }
 

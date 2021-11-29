@@ -105,18 +105,19 @@ class _HomeState extends State<Home> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 5, right: 30),
+                        Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 5, left: 15),
                             child: SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.075,
-                              width: MediaQuery.of(context).size.width * 0.075,
+                              height: MediaQuery.of(context).size.width * 0.08,
+                              width: MediaQuery.of(context).size.width * 0.08,
                               child: new IconButton(
-                                icon: Icon(Icons.person,
+                                icon: Icon(Icons.settings,
                                     size: MediaQuery.of(context).size.width *
-                                        0.075),
-                                color: Colors.grey,
+                                        0.08),
+                                color: Colors.white,
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (_) => HelpPage()));
@@ -124,6 +125,24 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
+                          Spacer(),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                                padding: EdgeInsets.only(top: 15, right: 30),
+                                child: Text(
+                                  "Words Game",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize:
+                                    MediaQuery.of(context).size.width * 0.07,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+
+                            ),
+                          ),
+                  ],
                         ),
 
 
@@ -140,7 +159,7 @@ class _HomeState extends State<Home> {
                                 child: Container(
                                   color: Colors.transparent,
                                   child: ExpansionTileBackground(
-                                    title: 'SOLO PLAY',
+                                    title: 'PLAY',
                                     color: Theme.of(context).accentColor,
                                     children: [
                                       ExpansionTileItem(
@@ -205,60 +224,9 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                               ),
-                              alignment: Alignment.center,
+                              alignment: Alignment.bottomCenter,
                             ),
-                            SizedBox(height: 30),
-                            Align(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 48),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (loggedIn) {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) => AllUsers()));
-                                    }
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: Color.fromRGBO(37, 38, 65, 0.7),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 5)
-                                      ],
-                                      border: Border.all(
-                                          color: Theme.of(context).primaryColor,
-                                          width: 1),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(30)),
-                                    ),
-                                    padding: EdgeInsets.symmetric(vertical: 15),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        !loggedIn
-                                            ? Icon(Icons.lock,
-                                                color: Colors.white)
-                                            : SizedBox.shrink(),
-                                        Text(
-                                          "Ranked Play".toUpperCase(),
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 25),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+
                             SizedBox(
                               height: 15,
                             ),

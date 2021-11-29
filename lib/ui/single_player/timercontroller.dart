@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Timercontroller with ChangeNotifier {
+class TimerController with ChangeNotifier {
   int timevalue;
   Timer timer;
 
-  settimer(int newtime, BuildContext context) {
+  setTimer(int newtime) {
     timevalue = newtime;
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       timevalue = timevalue - 1;

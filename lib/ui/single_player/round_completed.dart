@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/common_widgets/page_background.dart';
-import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
-import 'package:synonym_app/ui/shared/grid.dart';
 import 'package:synonym_app/ui/auth/login_start.dart';
-import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:synonym_app/ui/single_player/progress_screen.dart';
+import 'package:countup/countup.dart';
 
 class RoundCompleted extends StatefulWidget {
   final String timedOrContinous;
   final String difficulty;
-  final int rightAns, wrongAns;
   final int earnedXP;
   final int streakXP;
+  final int remainingLives;
 
   const RoundCompleted({
     @required this.timedOrContinous,
     @required this.difficulty,
-    @required this.rightAns,
-    @required this.wrongAns,
     @required this.earnedXP,
     @required this.streakXP,
+    @required this.remainingLives,
   });
 
   @override
@@ -129,8 +125,11 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                         color: Colors.yellow,
                                         size: 28.0,
                                       ),
-                                      Text(
-                                        "000",
+                                      Countup(
+                                        begin: 0,
+                                        end: widget.earnedXP.toDouble(),
+                                        duration: Duration(milliseconds: 250),
+                                        separator: ',',
                                         style: TextStyle(
                                           color: Colors.yellow,
                                           fontWeight: FontWeight.bold,
@@ -199,8 +198,11 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                         color: Colors.yellow,
                                         size: 28.0,
                                       ),
-                                      Text(
-                                        "000",
+                                      Countup(
+                                        begin: 0,
+                                        end: widget.streakXP.toDouble(),
+                                        duration: Duration(milliseconds: 250),
+                                        separator: ',',
                                         style: TextStyle(
                                           color: Colors.yellow,
                                           fontWeight: FontWeight.bold,
@@ -271,7 +273,7 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                       ),
                                       SizedBox(width: 5.0),
                                       Text(
-                                        "3",
+                                        "${widget.remainingLives}",
                                         style: TextStyle(
                                           color: Colors.red,
                                           fontWeight: FontWeight.bold,
@@ -301,7 +303,7 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                     padding: const EdgeInsets.all(30),
                                     child: _tappableAnimatedContainer(
                                       'SAVE AND BEGIN',
-                                      Theme.of(context).accentColor,
+                                      Theme.of(context).secondaryHeaderColor,
                                           () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -325,11 +327,15 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                     padding: const EdgeInsets.all(30),
                                     child: _tappableAnimatedContainer(
                                       'CONTINUE',
-                                      Theme.of(context).accentColor,
+                                      Theme.of(context).secondaryHeaderColor,
                                           () => Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (_) => ProgressScreen()),
+                                              builder: (_) => ProgressScreen(
+                                                  timedOrContinous: widget.timedOrContinous,
+                                                difficulty: widget.difficulty,
+                                                totalXP: widget.streakXP + widget.earnedXP,
+                                              )),
                                               (_) => false),
                                     ),
                                   ),
