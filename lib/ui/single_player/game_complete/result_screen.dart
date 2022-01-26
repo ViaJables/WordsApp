@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/common_widgets/page_background.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/shared/grid.dart';
 import 'package:synonym_app/ui/auth/login_start.dart';
-import 'package:synonym_app/helpers/auth_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -278,7 +275,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                           padding: const EdgeInsets.all(30),
                                           child: _tappableAnimatedContainer(
                                             'SAVE AND BEGIN',
-                                            Theme.of(context).accentColor,
+                                            Theme.of(context).secondaryHeaderColor,
                                             () => Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
@@ -302,7 +299,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                           padding: const EdgeInsets.all(30),
                                           child: _tappableAnimatedContainer(
                                             'NEXT',
-                                            Theme.of(context).accentColor,
+                                            Theme.of(context).secondaryHeaderColor,
                                             () => Navigator.pushAndRemoveUntil(
                                                 context,
                                                 MaterialPageRoute(

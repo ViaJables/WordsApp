@@ -53,7 +53,7 @@ class QuestionProvider {
 
   QuestionProvider() {
     _random = Random();
-    _askedQuestions = List<Question>();
+    _askedQuestions = [];
   }
 
   void reset() => _askedQuestions.clear();

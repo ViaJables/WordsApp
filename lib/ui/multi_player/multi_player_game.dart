@@ -1,4 +1,3 @@
-import 'package:after_init/after_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,16 +29,7 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
 
     _game = widget.game;
     _currentQuestion = _game.currentQuestion;
-  }
 
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  void didInitState() {
     _subscription = FirebaseFirestore.instance
         .collection(Keys.user)
         .doc(Provider.of<LocalUser>(context, listen: false).uid)
@@ -54,6 +44,13 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
       });
     });
   }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,12 +163,11 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
   }
 
   List<Widget> _answersUI() {
-    double width;
     int count;
     count = 4;
-    width = MediaQuery.of(context).size.width / 1.5;
+   // width = MediaQuery.of(context).size.width / 1.5;
 
-    List<Widget> output = List();
+    List<Widget> output = [];
 
     for (int i = 0; i < count; i++) {
       var wid = Expanded(
@@ -380,7 +376,7 @@ class _MarksBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      color: Theme.of(context).accentColor,
+      color: Theme.of(context).secondaryHeaderColor,
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
         children: <Widget>[

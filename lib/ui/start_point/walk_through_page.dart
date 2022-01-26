@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
-import 'package:synonym_app/ui/single_player/word_type_chooser.dart';
+import 'package:synonym_app/ui/single_player/pregame/game_difficulty_chooser.dart';
 import 'package:synonym_app/res/keys.dart';
 
 class WalkThroughPage extends StatefulWidget {
-  final String difficulty;
-
   @override
   _WalkThroughPageState createState() => _WalkThroughPageState();
-
-  WalkThroughPage({@required this.difficulty});
 }
 
 class _WalkThroughPageState extends State<WalkThroughPage> {
@@ -22,11 +18,6 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
 
   @override
   Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: MediaQuery.of(context).size.width * 0.045,
-      fontWeight: FontWeight.bold,
-      color: Theme.of(context).accentColor,
-    );
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -86,7 +77,7 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
                           Text(
                             "Synonym",
                             style: TextStyle(
-                                color: Theme.of(context).accentColor,
+                                color: Theme.of(context).secondaryHeaderColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 32),
                           ),
@@ -131,7 +122,7 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
                                       color: Colors.black26, blurRadius: 5)
                                 ],
                                 border: Border.all(
-                                    color: Theme.of(context).accentColor,
+                                    color: Theme.of(context).secondaryHeaderColor,
                                     width: 1),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(30)),
@@ -199,7 +190,7 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
                                       color: Colors.black26, blurRadius: 5)
                                 ],
                                 border: Border.all(
-                                    color: Theme.of(context).accentColor,
+                                    color: Theme.of(context).secondaryHeaderColor,
                                     width: 1),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(30.0)),
@@ -232,11 +223,10 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => WordTypeChooser(
-                                            gameType: Keys.timed,
-                                            continuous: false,
-                                            difficulty: widget.difficulty,
-                                          )));
+                                      builder: (_) =>  GameDifficultyChooser(
+                                        gameType: Keys.timed,
+                                        continuous: false,
+                                      ),));
                             },
                             child: Container(
                               width: MediaQuery.of(context).size.width * 0.5,
@@ -248,7 +238,7 @@ class _WalkThroughPageState extends State<WalkThroughPage> {
                                       color: Colors.black26, blurRadius: 5)
                                 ],
                                 border: Border.all(
-                                    color: Theme.of(context).accentColor,
+                                    color: Theme.of(context).secondaryHeaderColor,
                                     width: 1),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(30.0)),

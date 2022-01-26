@@ -156,6 +156,31 @@ class AuthHelper {
     }
   }
 
+  Future<LocalUser> getRemoteUser(BuildContext context) async {
+    try {
+      var fUser = FirebaseAuth.instance.currentUser;
+      if (fUser == null) return null;
+      Constants.useruid = fUser.uid.toString();
+      print(Constants.useruid);
+      LocalUser currentUser;
+
+      currentUser = LocalUser.fromMap((await FirebaseFirestore.instance
+            .collection(Keys.user)
+            .doc(fUser.uid)
+            .get())
+            .data());
+      _saveUser(currentUser);
+      Provider.of<LocalUser>(context, listen: false).uid = currentUser.uid;
+      Provider.of<LocalUser>(context, listen: false).name = currentUser.name;
+      Provider.of<LocalUser>(context, listen: false).email = currentUser.email;
+      Provider.of<LocalUser>(context, listen: false).image = currentUser.image;
+
+      return currentUser;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
     (await SharedPreferences.getInstance()).remove(Keys.user);

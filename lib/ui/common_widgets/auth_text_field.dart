@@ -34,7 +34,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         Text(
           widget.title,
           style: TextStyle(
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).secondaryHeaderColor,
               fontSize: MediaQuery.of(context).size.width * 0.05),
         ),
         SizedBox(height: 7.5),

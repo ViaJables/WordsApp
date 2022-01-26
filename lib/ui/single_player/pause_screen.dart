@@ -78,7 +78,7 @@ class _PauseScreenState extends State<PauseScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
                           child: _tappableAnimatedContainer(
-                              'RESUME', Theme.of(context).accentColor, () {
+                              'RESUME', Theme.of(context).secondaryHeaderColor, () {
                             setState(() {
                               _animateFlag = !_animateFlag;
                             });

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/auth/login_start.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:synonym_app/ui/single_player/progress_screen.dart';
+import 'package:synonym_app/ui/single_player/game_complete/progress_screen.dart';
 import 'package:countup/countup.dart';
 
 class RoundCompleted extends StatefulWidget {

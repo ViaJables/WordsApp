@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/ui/admin/historyitem.dart';
-import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 
 class Historypage extends StatefulWidget {
@@ -81,7 +80,7 @@ class _HistorypageState extends State<Historypage> {
                           'SYNONYMS',
                           style: TextStyle(
                             color: pageIndex == 0
-                                ? Theme.of(context).accentColor
+                                ? Theme.of(context).secondaryHeaderColor
                                 : Colors.white,
                             fontSize: MediaQuery.of(context).size.width * 0.05,
                             fontWeight: FontWeight.bold,

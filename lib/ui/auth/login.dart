@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,25 +7,20 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/localuser.dart';
-import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/res/static_info.dart';
 import 'package:synonym_app/ui/admin/admin_home.dart';
 import 'package:synonym_app/ui/admin/admin_info.dart';
-import 'package:synonym_app/ui/auth/register.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
-import 'package:synonym_app/ui/common_widgets/custom_button.dart';
-import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:http/http.dart' as http;
-import 'package:synonym_app/ui/start_point/home.dart';
 
 class Login extends StatefulWidget {
   Login({Key key}) : super(key: key);
@@ -121,7 +114,7 @@ class _LoginState extends State<Login> {
                                         color: Colors.black26, blurRadius: 5)
                                   ],
                                   border: Border.all(
-                                      color: Theme.of(context).accentColor,
+                                      color: Theme.of(context).secondaryHeaderColor,
                                       width: 1),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(30)),
@@ -181,6 +174,7 @@ class _LoginState extends State<Login> {
   _saveUser(LocalUser user) async {
     var pref = await SharedPreferences.getInstance();
     await pref.setString(Keys.user, json.encode(user.toMap()));
+    print("LOGGED IN AND SAVED USER");
   }
 
 
@@ -197,15 +191,13 @@ class _LoginState extends State<Login> {
           await FirebaseAuth.instance.signInWithCredential(facebookAuthCred);
       String fbUid = fbUser.user.uid;
 
-      http.Response response = await http.get(Uri.https(
+      await http.get(Uri.https(
           'jsonplaceholder.typicode.com',
           'http://graph.facebook.com/v9.0/$id/picture?access_token=$token'));
-      Uint8List fbImage = response.bodyBytes.buffer.asUint8List();
+      //Uint8List fbImage = response.bodyBytes.buffer.asUint8List();
       var storageReference = FirebaseStorage.instance
           .ref()
           .child(DateTime.now().millisecondsSinceEpoch.toString());
-      final uploadTask = storageReference.putData(fbImage);
-      var taskSnapshot = await uploadTask.whenComplete;
       String imgUrlLink = await storageReference.getDownloadURL();
       String userName = name.replaceAll(' ', '');
       LocalUser user = LocalUser(
@@ -255,7 +247,7 @@ class _LoginState extends State<Login> {
     try {
       final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
       print('1');
-      ;
+
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
       print('2');
@@ -269,15 +261,14 @@ class _LoginState extends State<Login> {
           await FirebaseAuth.instance.signInWithCredential(credential);
 
       List<String> bigPic = authResult.user.photoURL.split('=');
-      http.Response response = await http.get(
+      await http.get(
         Uri.https('jsonplaceholder.typicode.com', '${bigPic[0]}'),
       );
       String imageName =
           DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
-      Uint8List googleImage = response.bodyBytes.buffer.asUint8List();
+      //Uint8List googleImage = response.bodyBytes.buffer.asUint8List();
       var storageReference = FirebaseStorage.instance.ref().child(imageName);
-      final uploadTask = storageReference.putData(googleImage);
-      var taskSnapshot = await uploadTask.whenComplete;
+      //final uploadTask = storageReference.putData(googleImage);
       String imgUrlLink = await storageReference.getDownloadURL();
       String userName = authResult.user.displayName.replaceAll(' ', '');
       String userUid = authResult.user.uid;

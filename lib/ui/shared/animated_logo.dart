@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 class AnimatedLogo extends StatelessWidget {
@@ -40,7 +38,6 @@ class AnimatedLogoScreenState extends State<AnimatedLogoScreen>
   @override
   void initState() {
     super.initState();
-    height = widget.height;
 
     // Logo
     animControlLogo = new AnimationController(
@@ -89,7 +86,7 @@ class AnimatedLogoScreenState extends State<AnimatedLogoScreen>
     return new Container(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       alignment: Alignment.center,
-      height: height,
+      height: widget.height,
       width: double.infinity,
       child: Stack(
         children: [

@@ -173,7 +173,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                     padding: const EdgeInsets.all(30),
                                     child: _tappableAnimatedContainer(
                                       'CONTINUE',
-                                      Theme.of(context).accentColor,
+                                      Theme.of(context).secondaryHeaderColor,
                                           () => Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(

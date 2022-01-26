@@ -1,43 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:synonym_app/res/keys.dart';
-import 'package:synonym_app/ui/single_player/single_player_game_page.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
+import 'package:synonym_app/ui/single_player/pregame/word_type_chooser.dart';
 
-class WordTypeChooser extends StatelessWidget {
+class GameDifficultyChooser extends StatelessWidget {
   final String gameType;
-  final String difficulty;
   final bool continuous;
 
-  WordTypeChooser({
+  GameDifficultyChooser({
     @required this.gameType,
-    @required this.difficulty,
     @required this.continuous,
   });
 
   @override
   Widget build(BuildContext context) {
-    final decoration = BoxDecoration(
-      color: Colors.transparent,
-      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
-      border: Border.all(color: Theme.of(context).accentColor, width: 1),
-      borderRadius: BorderRadius.all(Radius.circular(7)),
-    );
-
-    final textStyle = TextStyle(
-        color: Theme.of(context).accentColor,
-        fontWeight: FontWeight.bold,
-        fontSize: 28);
-
-    final onTap = (wordType) {
+    final onTap = (difficulty) {
       Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (_) => SinglePlayerGamePage(
-                    gameType: gameType,
-                    wordType: wordType,
-                    continuous: continuous,
-                    difficulty: difficulty,
-                  )));
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => WordTypeChooser(
+              gameType: gameType,
+              continuous: false,
+              difficulty: difficulty,
+            ),
+            transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+            transitionDuration: Duration(milliseconds: 100),
+          ));
     };
 
     return Scaffold(
@@ -49,35 +37,20 @@ class WordTypeChooser extends StatelessWidget {
             Column(
               children: [
                 SafeArea(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios),
-                        color: Colors.white,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                'Select Game Type',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.06,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          color: Colors.white,
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
-                      Spacer()
-                    ],
+
+                        Spacer(),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
@@ -88,9 +61,18 @@ class WordTypeChooser extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: 30),
+                        Text(
+                          'Select Difficulty',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: MediaQuery.of(context).size.width * 0.09,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 60),
                         GestureDetector(
-                          onTap: () => onTap(Keys.synonym),
+                          onTap: () => onTap(Keys.easy),
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -100,16 +82,16 @@ class WordTypeChooser extends StatelessWidget {
                                 BoxShadow(color: Colors.black26, blurRadius: 5)
                               ],
                               border: Border.all(
-                                  color: Theme.of(context).accentColor,
+                                  color: Theme.of(context).secondaryHeaderColor,
                                   width: 1),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(30)),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              "Synonyms",
+                              "Easy",
                               style: TextStyle(
-                                  color: Theme.of(context).accentColor,
+                                  color: Theme.of(context).secondaryHeaderColor,
                                   fontWeight: FontWeight.normal,
                                   fontSize: 28),
                             ),
@@ -117,7 +99,7 @@ class WordTypeChooser extends StatelessWidget {
                         ),
                         SizedBox(height: 30),
                         GestureDetector(
-                          onTap: () => onTap(Keys.antonym),
+                          onTap: () => onTap(Keys.medium),
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -134,7 +116,7 @@ class WordTypeChooser extends StatelessWidget {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              "Antonyms",
+                              "Medium",
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.normal,
@@ -144,7 +126,7 @@ class WordTypeChooser extends StatelessWidget {
                         ),
                         SizedBox(height: 30),
                         GestureDetector(
-                          onTap: () => onTap(null),
+                          onTap: () => onTap(Keys.hard),
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -159,7 +141,7 @@ class WordTypeChooser extends StatelessWidget {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 15),
                             child: Text(
-                              "Both",
+                              "Hard",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.normal,

@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/res/keys.dart';
-import 'package:synonym_app/res/static_info.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 
@@ -141,7 +139,7 @@ class _AddWordState extends State<AddWord> {
                       children: <Widget>[
                         Expanded(
                           child: Container(
-                            color: Theme.of(context).accentColor,
+                            color: Theme.of(context).secondaryHeaderColor,
                             height: 1,
                           ),
                         ),
@@ -150,7 +148,7 @@ class _AddWordState extends State<AddWord> {
                         SizedBox(width: 20),
                         Expanded(
                           child: Container(
-                            color: Theme.of(context).accentColor,
+                            color: Theme.of(context).secondaryHeaderColor,
                             height: 1,
                           ),
                         ),
@@ -204,10 +202,10 @@ class _AddWordState extends State<AddWord> {
     if (!_formKey.currentState.validate())
       return;
     else if (_wordType == null) {
-      Toast.show('Choose one: Synonym/Antonym', context, duration: 3);
+      Fluttertoast.showToast(msg: 'Choose one: Synonym/Antonym');
       return;
     } else if (_optionIndex == null) {
-      Toast.show('Choose correct answer', context, duration: 3);
+      Fluttertoast.showToast(msg: 'Choose correct answer');
       return;
     }
 
@@ -242,7 +240,7 @@ class _AddWordState extends State<AddWord> {
     } catch (e) {
       print(e);
       dialog.hide();
-      Toast.show('error in adding question', context, duration: 3);
+      Fluttertoast.showToast(msg: 'error in adding question');
     }
   }
 
@@ -255,11 +253,11 @@ class _AddWordState extends State<AddWord> {
             ' answer and other three columns must be remaining options\n\n\n'
             'What would be the type of words you are choosing?'),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.pop(context, Keys.synonym),
             child: Text(Keys.synonym.toUpperCase()),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.pop(context, Keys.antonym),
             child: Text(Keys.antonym.toUpperCase()),
           ),
@@ -283,7 +281,7 @@ class _AddWordState extends State<AddWord> {
     dialog.style(message: 'Please wait...');
     dialog.show();
 
-    var questions = List<Question>();
+    var questions = [];
 
     var data = await rootBundle.load("assets/QuestionData.xlsx");
     List<int> bytes =

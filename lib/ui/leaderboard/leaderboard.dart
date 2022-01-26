@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/common_widgets/page_background.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
-import 'package:synonym_app/ui/shared/grid.dart';
-import 'package:synonym_app/ui/auth/login_start.dart';
-import 'package:synonym_app/helpers/auth_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:synonym_app/ui/leaderboard/leaderboard_user.dart';
 
 class Leaderboard extends StatefulWidget {
-  final String timedOrContinous;
-  final String difficulty;
-  final int rightAns, wrongAns;
-
-  const Leaderboard({
-    @required this.timedOrContinous,
-    @required this.difficulty,
-    @required this.rightAns,
-    @required this.wrongAns,
-  });
 
   @override
   _LeaderboardState createState() => _LeaderboardState();
@@ -52,238 +38,180 @@ class _LeaderboardState extends State<Leaderboard> {
                   SafeArea(
                     child: Column(
                       children: [
-                        SizedBox(height: 80.0),
-                        Text(
-                          "Leaderboard",
-                          style: TextStyle(
-                              color: Theme.of(context).secondaryHeaderColor,
-                              fontWeight: FontWeight.normal,
-                              fontSize: MediaQuery.of(context)
-                                  .size
-                                  .width *
-                                  0.075),
-                        ),
-                        Text(
-                          "ROUND",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.normal,
-                              fontSize: MediaQuery.of(context)
-                                  .size
-                                  .width *
-                                  0.2),
-                        ),
-                        SizedBox(height: 60.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                          Column(
+                            children: [
+                              SizedBox(height: 60.0),
+                              Stack(
+                                children: [
+                                  Container(
+                                     width: MediaQuery.of(context).size.width / 4,
+                                      decoration: new BoxDecoration(
+                                          shape: BoxShape.circle,
+
+
+                                      ),
+                                    child: Image.asset(
+                                        "assets/leaderboard/placeholder1.png"
+                                    ),
+                                  ),
+                                ]
+                    ),
+
+                              Text(
+                                "username",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 14.0),
+                              ),
+                              SizedBox(height: 15.0),
+                              Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(76, 76, 76, 0.3),
+                                  boxShadow: [
+                                    BoxShadow(color: Colors.black26, blurRadius: 5)
+                                  ],
+
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(30)),
+                                ),
+                                padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
+                                child: Text(
+                                  "123432",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 14),
+                                ),
+                              ),
+                            ],
+                    ),
                             Column(
                               children: [
-                                Container(
-                                  width: (MediaQuery.of(context).size.width) -
-                                      60,
-
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black26, blurRadius: 5)
-                                    ],
-                                    border: Border.all(
-                                        color: Colors.white60, width: 2),
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(16)),
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-
+                                Stack(
                                     children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width / 3,
+                                        decoration: new BoxDecoration(
+                                          shape: BoxShape.circle,
 
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Round XP",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.05,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(
-                                          child: SizedBox()
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.yellow,
-                                        size: 28.0,
-                                      ),
-                                      Text(
-                                        "000",
-                                        style: TextStyle(
-                                          color: Colors.yellow,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.05,
+
+                                        ),
+                                        child: Image.asset(
+                                            "assets/leaderboard/placeholder1.png"
                                         ),
                                       ),
+                                    ]
+                                ),
+
+                                Text(
+                                  "username",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 14.0),
+                                ),
+                                SizedBox(height: 15.0),
+                                Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(76, 76, 76, 0.3),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black26, blurRadius: 5)
                                     ],
+
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(30)),
+                                  ),
+                                  padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
+                                  child: Text(
+                                    "123432",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14),
                                   ),
                                 ),
                               ],
                             ),
-
-                          ],
-                        ),
-                        SizedBox(height: 30.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
                             Column(
                               children: [
-                                Container(
-                                  width: (MediaQuery.of(context).size.width) -
-                                      60,
-
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black26, blurRadius: 5)
-                                    ],
-                                    border: Border.all(
-                                        color: Colors.white60, width: 2),
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(16)),
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-
+                                SizedBox(height: 120.0),
+                                Stack(
                                     children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width / 4.5,
+                                        decoration: new BoxDecoration(
+                                          shape: BoxShape.circle,
 
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Streak XP",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.05,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(
-                                          child: SizedBox()
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.yellow,
-                                        size: 28.0,
-                                      ),
-                                      Text(
-                                        "000",
-                                        style: TextStyle(
-                                          color: Colors.yellow,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.05,
+
+                                        ),
+                                        child: Image.asset(
+                                            "assets/leaderboard/placeholder1.png"
                                         ),
                                       ),
+                                    ]
+                                ),
+
+                                Text(
+                                  "username",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 14.0),
+                                ),
+                                SizedBox(height: 15.0),
+                                Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(76, 76, 76, 0.3),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black26, blurRadius: 5)
                                     ],
+
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(30)),
+                                  ),
+                                  padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
+                                  child: Text(
+                                    "123432",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14),
                                   ),
                                 ),
                               ],
                             ),
+                    ],
 
-                          ],
+                          ),
+                    SizedBox(height: 15.0),
+                    Container(
+
+                      height: 1.0,
+                        width: double.infinity,
+                        color: Theme.of(context).secondaryHeaderColor,
+                    ),
+                        Container(
+
+                          height: 15.0,
+                          width: double.infinity,
+                          color: Color.fromRGBO(37, 38, 65, 0.7),
                         ),
-                        SizedBox(height: 60.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                Container(
-                                  width: (MediaQuery.of(context).size.width) -
-                                      60,
+                        Expanded(
+                          child:
+                          ListView.builder(
+                              itemCount: 4,
+                              itemBuilder: (context, index) {
+                                return LeaderboardUser();
+                              }),
 
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black26, blurRadius: 5)
-                                    ],
-                                    border: Border.all(
-                                        color: Colors.white60, width: 2),
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(16)),
-                                  ),
-                                  padding: EdgeInsets.all(15.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-
-                                    children: [
-
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Remaining Lives",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.05,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(
-                                          child: SizedBox()
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.red,
-                                        size: 28.0,
-                                      ),
-                                      Text(
-                                        "3",
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.05,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                          ],
                         ),
-                        SizedBox(height: 60.0),
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
@@ -294,7 +222,7 @@ class _LeaderboardState extends State<Leaderboard> {
                                     padding: const EdgeInsets.all(30),
                                     child: _tappableAnimatedContainer(
                                       'CONTINUE',
-                                      Theme.of(context).accentColor,
+                                      Theme.of(context).secondaryHeaderColor,
                                           () => Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(

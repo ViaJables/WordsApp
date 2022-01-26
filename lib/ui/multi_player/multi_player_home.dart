@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:after_init/after_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +26,6 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didInitState() {
     myUid = Provider.of<LocalUser>(context).uid;
   }
 
@@ -82,7 +77,7 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                   children: <Widget>[
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).secondaryHeaderColor,
                       child: user.image == ''
                           ? Icon(
                               Icons.person,
@@ -102,14 +97,14 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                           'welcome back'.toUpperCase(),
                           style: TextStyle(
                             fontSize: 17,
-                            color: Theme.of(context).accentColor,
+                            color: Theme.of(context).secondaryHeaderColor,
                           ),
                         ),
                         Text(
                           Provider.of<LocalUser>(context).name.toUpperCase(),
                           style: TextStyle(
                               fontSize: 17,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).secondaryHeaderColor,
                               fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -139,7 +134,7 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                           'start new game'.toUpperCase(),
                           style: TextStyle(
                               fontSize: 17,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).secondaryHeaderColor,
                               fontWeight: FontWeight.bold),
                         ),
                         Icon(

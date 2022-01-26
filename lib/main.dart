@@ -1,6 +1,4 @@
-import 'dart:io';
-
-//import 'package:admob_flutter/admob_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Admob.initialize();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp();
   // appId: Platform.isAndroid
   //     ? 'ca-app-pub-3042907838603854~5345471733'
@@ -40,7 +38,7 @@ class SynonymApp extends StatelessWidget {
       child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            textTheme: GoogleFonts.rubikTextTheme(
+            textTheme: GoogleFonts.robotoTextTheme(
               Theme.of(context).textTheme,
             ),
             primaryColor: Color.fromRGBO(239, 23, 115, 1),

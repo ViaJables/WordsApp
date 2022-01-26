@@ -5,8 +5,6 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:synonym_app/ui/shared/animated_logo.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
-import 'package:synonym_app/helpers/auth_helper.dart';
-import 'package:synonym_app/ui/auth/login.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 
 class IntroScreen extends StatelessWidget {
@@ -114,8 +112,7 @@ class IntroScreenState extends State<IntroAnimationScreen>
                   opacity: fadeStartButton.value,
                   child: new InkWell(
                     onTap: () async {
-                      var page;
-                      page = Navigator.pushReplacement(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => Home()),
                       );

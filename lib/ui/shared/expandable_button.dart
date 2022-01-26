@@ -29,13 +29,30 @@ class ExpansionTileBackground extends StatelessWidget {
               border: Border.all(color: color, width: 1),
             ),
             padding: EdgeInsets.symmetric(vertical: 15),
-            child: Text(
+            child:
+            Padding(
+            padding: EdgeInsets.only(right: 15.0),
+            child:
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+
+            children: [
+              Icon(
+              Icons.play_arrow,
+                color: Colors.white,
+                size: 32.0,
+              ),
+            SizedBox(width: 5),
+            Text(
               title,
               style: TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.normal,
+                  fontWeight: FontWeight.w800,
                   fontSize: 25),
             ),
+            ],
+            ),
+          ),
           ),
           backgroundColor: Colors.transparent,
           trailing: SizedBox.shrink(),

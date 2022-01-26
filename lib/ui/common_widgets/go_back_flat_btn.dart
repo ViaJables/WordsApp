@@ -7,7 +7,7 @@ class GoBackFlatBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       onPressed: flag ? () => Navigator.pop(context) : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -21,7 +21,7 @@ class GoBackFlatBtn extends StatelessWidget {
           Text(
             'Back',
             style: TextStyle(
-              color: flag? Theme.of(context).accentColor: Colors.transparent,
+              color: flag? Theme.of(context).secondaryHeaderColor: Colors.transparent,
               fontSize: 17,
             ),
           )

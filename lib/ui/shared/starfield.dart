@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
@@ -80,7 +79,7 @@ class StarfieldScreenState extends State<StarfieldAnimationScreen>
   }
 
   Widget buildGroupStar() {
-    List<Widget> list = new List();
+    List<Widget> list = [];
     for (int i = 0; i < numStars; i++) {
       list.add(buildStar(listStar[i].left, listStar[i].top,
           listStar[i].extraSize, listStar[i].angle, listStar[i].typeFade));

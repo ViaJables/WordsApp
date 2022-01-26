@@ -5,12 +5,19 @@ import 'package:flutter/material.dart';
 
 class TimerController with ChangeNotifier {
   int timevalue;
+  int pauseValue = 0;
   Timer timer;
 
   setTimer(int newtime) {
     timevalue = newtime;
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      timevalue = timevalue - 1;
+      if(pauseValue == 0) {
+        timevalue = timevalue - 1;
+      } else {
+        pauseValue = pauseValue - 1;
+      }
+
+
       if (timevalue == 0) {
         timer.cancel();
         notifyListeners();
@@ -19,5 +26,5 @@ class TimerController with ChangeNotifier {
     });
   }
 
-  int get Gettime => timevalue;
+  int get getTime => timevalue;
 }

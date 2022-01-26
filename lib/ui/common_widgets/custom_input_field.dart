@@ -13,14 +13,14 @@ class CustomInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     _inputBorder = OutlineInputBorder(
       borderSide: BorderSide(
-        color: Theme.of(context).accentColor.withOpacity(0.5),
+        color: Theme.of(context).secondaryHeaderColor.withOpacity(0.5),
       ),
     );
 
     return Container(
       color: Color(0xffF6F6F1),
       child: TextField(
-        cursorColor: Theme.of(context).accentColor,
+        cursorColor: Theme.of(context).secondaryHeaderColor,
         controller: controller,
         obscureText: obscure,
         decoration: InputDecoration(

@@ -1,10 +1,7 @@
-import 'dart:convert';
-
-import 'package:after_init/after_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
@@ -12,7 +9,7 @@ import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/common_widgets/help_icon.dart';
 import 'package:synonym_app/ui/multi_player/new_game.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AllUsers extends StatefulWidget {
   AllUsers({Key key}) : super(key: key);
@@ -34,20 +31,10 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
     super.initState();
 
     _searchCon = TextEditingController();
-  }
-
-  @override
-  void didInitState() {
-//    _decoration = BoxDecoration(
-//      color: Colors.white,
-//      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
-//      border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
-//      borderRadius: BorderRadius.all(Radius.circular(7)),
-//    );
 
     _inputBorder = OutlineInputBorder(
         borderSide: BorderSide(
-          color: Theme.of(context).accentColor.withOpacity(0.5),
+          color: Theme.of(context).secondaryHeaderColor.withOpacity(0.5),
         ),
         borderRadius: BorderRadius.all(Radius.circular(7)));
   }
@@ -110,7 +97,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                       'FRIENDS',
                       style: TextStyle(
                         color: pageIndex == 0
-                            ? Theme.of(context).accentColor
+                            ? Theme.of(context).secondaryHeaderColor
                             : Colors.white,
                         fontSize: MediaQuery.of(context).size.width * 0.05,
                         fontWeight: FontWeight.bold,
@@ -134,7 +121,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                       'FIND FRIENDS',
                       style: TextStyle(
                         color: pageIndex == 1
-                            ? Theme.of(context).accentColor
+                            ? Theme.of(context).secondaryHeaderColor
                             : Colors.white,
                         fontSize: MediaQuery.of(context).size.width * 0.05,
                         fontWeight: FontWeight.bold,
@@ -151,7 +138,6 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                     .collection(Keys.user)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  var userList = [];
                   List<LocalUser> usersList = [];
                   if (snapshot.data != null)
                     for (var item in snapshot.data.docs) {
@@ -205,7 +191,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                                 child: Container(
                                   color: Colors.white,
                                   child: TextField(
-                                    cursorColor: Theme.of(context).accentColor,
+                                    cursorColor: Theme.of(context).secondaryHeaderColor,
                                     onChanged: (st) {
                                       setState(() {});
                                     },
@@ -213,7 +199,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                                     decoration: InputDecoration(
                                       prefixIcon: Icon(
                                         Icons.search,
-                                        color: Theme.of(context).accentColor,
+                                        color: Theme.of(context).secondaryHeaderColor,
                                       ),
                                       border: _inputBorder,
                                       enabledBorder: _inputBorder,
@@ -255,7 +241,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
         onTap: () => _startGame(user),
         leading: CircleAvatar(
           radius: 30,
-          backgroundColor: Theme.of(context).accentColor,
+          backgroundColor: Theme.of(context).secondaryHeaderColor,
           child: user.image == ''
               ? Icon(
                   Icons.person,
@@ -271,7 +257,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
         title: Text(
           user.name.isEmpty ? 'Fake Name' : user.name,
           style: TextStyle(
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).secondaryHeaderColor,
             fontWeight: FontWeight.w800,
             fontSize: 20,
           ),
@@ -299,7 +285,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
 
     if (result.docs.length != 0) {
       dialog.hide();
-      Toast.show('already playing with ${user.name}', context, duration: 3);
+      FlutterToast.show('already playing with ${user.name}');
       return;
     }
 

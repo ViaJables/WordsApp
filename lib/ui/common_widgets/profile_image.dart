@@ -11,7 +11,7 @@ class ProfileImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: Theme.of(context).accentColor,
+      backgroundColor: Theme.of(context).secondaryHeaderColor,
      // child: image == null,
     );
   }

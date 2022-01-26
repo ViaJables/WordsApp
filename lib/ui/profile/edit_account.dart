@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
@@ -17,7 +17,7 @@ class EditAccount extends StatefulWidget {
 class _EditAccountState extends State<EditAccount> {
   bool changed = false;
   TextEditingController name = new TextEditingController();
-  String imgurl = null;
+  String imgurl = "";
   File imageFile;
   File _image;
   final picker = ImagePicker();
@@ -34,7 +34,7 @@ class _EditAccountState extends State<EditAccount> {
     final style = TextStyle(
         fontSize: MediaQuery.of(context).size.width * 0.045,
         fontWeight: FontWeight.bold,
-        color: Theme.of(context).accentColor);
+        color: Theme.of(context).secondaryHeaderColor);
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body: Stack(
@@ -93,7 +93,7 @@ class _EditAccountState extends State<EditAccount> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      FlatButton(
+                      TextButton(
                         onPressed: () async {
                           await addData();
                           // Navigator.of(context).pushAndRemoveUntil(
@@ -132,8 +132,8 @@ class _EditAccountState extends State<EditAccount> {
     var storageReference = FirebaseStorage.instance
         .ref()
         .child(DateTime.now().millisecondsSinceEpoch.toString());
-    final uploadTask = storageReference.putFile(filepath);
-    var taskSnapshot = await uploadTask.whenComplete;
+    //final uploadTask = storageReference.putFile(filepath);
+    //var taskSnapshot = await uploadTask.whenComplete;
     imgurl = await storageReference.getDownloadURL();
     setState(() {});
   }

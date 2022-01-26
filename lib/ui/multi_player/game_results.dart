@@ -143,12 +143,12 @@ class _GameResultsState extends State<GameResults> {
 
   Widget _scoreRow(String text1, String text2, String text3) {
     final boldStyle = TextStyle(
-        color: Theme.of(context).accentColor,
+        color: Theme.of(context).secondaryHeaderColor,
         fontSize: 22,
         fontWeight: FontWeight.bold);
 
     final lightBoldStyle = TextStyle(
-      color: Theme.of(context).accentColor,
+      color: Theme.of(context).secondaryHeaderColor,
       fontSize: 20,
     );
 

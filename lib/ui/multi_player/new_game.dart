@@ -228,7 +228,7 @@ class _NewGameState extends State<NewGame> {
         user.uid == Provider.of<LocalUser>(context).uid
             ? Container()
             : CircleAvatar(
-                backgroundColor: Theme.of(context).accentColor,
+                backgroundColor: Theme.of(context).secondaryHeaderColor,
                 child: user.image == ''
                     ? Icon(
                         Icons.person,

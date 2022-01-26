@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
@@ -125,7 +125,7 @@ class _RegisterState extends State<Register> {
                                           color: Colors.black26, blurRadius: 5)
                                     ],
                                     border: Border.all(
-                                        color: Theme.of(context).accentColor,
+                                        color: Theme.of(context).secondaryHeaderColor,
                                         width: 1),
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(7)),
@@ -227,14 +227,14 @@ class _AddProfilePageState extends State<AddProfilePage> {
   File imageFile;
   File _image;
   final picker = ImagePicker();
-  String image = null;
+  String image = "";
 
   @override
   Widget build(BuildContext context) {
     final style = TextStyle(
         fontSize: MediaQuery.of(context).size.width * 0.045,
         fontWeight: FontWeight.bold,
-        color: Theme.of(context).accentColor);
+        color: Theme.of(context).secondaryHeaderColor);
     return Scaffold(
         body: Container(
       height: MediaQuery.of(context).size.height,
@@ -266,7 +266,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
                 AuthTextField(title: 'Enter Your Full Name', controller: name),
           ),
           SizedBox(height: 10),
-          FlatButton(
+          TextButton(
             onPressed: () async {
               await addData();
               Navigator.of(context).pushAndRemoveUntil(
@@ -285,8 +285,8 @@ class _AddProfilePageState extends State<AddProfilePage> {
     var storageReference = FirebaseStorage.instance
         .ref()
         .child(DateTime.now().millisecondsSinceEpoch.toString());
-    final uploadTask = storageReference.putFile(filepath);
-    var taskSnapshot = await uploadTask.whenComplete;
+    //final uploadTask = storageReference.putFile(filepath);
+    //var taskSnapshot = await uploadTask.whenComplete;
     image = await storageReference.getDownloadURL();
     setState(() {});
   }
@@ -393,8 +393,8 @@ class _AddProfilePageState extends State<AddProfilePage> {
           .collection('users')
           .doc(Constants.useruid)
           .update({'name': name.text});
-      AuthHelper helper = AuthHelper();
-      var result = await helper.username(context, name.text);
+      //AuthHelper helper = AuthHelper();
+      //var result = await helper.username(context, name.text);
     }
     dialog.hide();
   }

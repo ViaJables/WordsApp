@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,13 +9,17 @@ import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/single_player/pause_screen.dart';
-import 'package:synonym_app/ui/single_player/round_completed.dart';
+import 'package:synonym_app/ui/single_player/game_complete/round_completed.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/shared/grid.dart';
 import 'package:flutter/services.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:countup/countup.dart';
 import 'package:outline_gradient_button/outline_gradient_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:synonym_app/helpers/auth_helper.dart';
+import 'package:synonym_app/models/localuser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SinglePlayerGamePage extends StatefulWidget {
   final String gameType;
@@ -54,6 +59,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   int count;
   List<Question> questionsList = [];
   int index = -1;
+  LocalUser user;
 
   int a;
   var tim, tim2;
@@ -64,11 +70,16 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   var lastPoints = 0.0;
   var streakPoints = 0.0;
   var remainingLives = 3;
+  var remainingBombs = 3;
+  var remainingClocks = 3;
+  var remainingHourglasses = 3;
 
   @override
   void initState() {
     super.initState();
 
+    fetchStoredUser();
+    fetchUser();
     _animateFlag = false;
     print("Single player init called");
     _currentTime = 60;
@@ -76,6 +87,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     timeController.addListener(() {
       setState(() {
         _currentTime = timeController.timevalue;
+
+        if (_currentTime < 1) {
+          completeRound(context);
+        }
       });
     });
 
@@ -100,7 +115,6 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
           _currentTime = 60;
         if (_currentTime != null) {
           print("Intro Pause");
-          navigate(_currentTime, context);
           timeController.setTimer(_currentTime);
         }
       }
@@ -109,18 +123,21 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   navigate(int time, BuildContext ctx) async {
     t = Timer(Duration(seconds: time), () {
-      Navigator.of(ctx).pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: (_) => RoundCompleted(
-                    timedOrContinous: Keys.timed,
-                    difficulty: widget.difficulty,
-                    earnedXP: points.toInt(),
-                    streakXP: streakPoints.toInt(),
-                    remainingLives: remainingLives,
 
-                  )),
-          (route) => false);
     });
+  }
+
+  completeRound(BuildContext ctx) async {
+    Navigator.of(ctx).pushAndRemoveUntil(
+        MaterialPageRoute(
+            builder: (_) => RoundCompleted(
+              timedOrContinous: Keys.timed,
+              difficulty: widget.difficulty,
+              earnedXP: points.toInt(),
+              streakXP: streakPoints.toInt(),
+              remainingLives: remainingLives,
+            )),
+            (route) => false);
   }
 
   @override
@@ -153,7 +170,6 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                     child: Stack(
                       children: [
                         new Starfield(),
-
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
@@ -179,90 +195,118 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     GestureDetector(
                                       onTap: () => tappedBomb(),
-                                      child:
-                                        Container(height: 90.0, width: 90.0,
-                                          decoration: BoxDecoration(
-                                            color: Color.fromRGBO(37, 38, 65, 0.7),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.black26,
-                                                  blurRadius: 5)
-                                            ],
-                                            border: Border.all(
-                                                color: Colors.white,
-                                                width: 1),
-                                            borderRadius:
-                                            BorderRadius.all(Radius.circular(30)),
-                                          ),
-                                          padding: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
-                                          child:
-                                              Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 15, right: 15, top: 5),
-                                                    child:
-                                                     Image.asset('assets/bomb_icon.png'),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 5, right: 5, top: 7.5),
-                                                    child:
-                                                      Text(
-                                                        "5 Left",
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: MediaQuery.of(context).size
+                                      child: Container(
+                                        height: 90.0,
+                                        width: 90.0,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(37, 38, 65, 0.7),
+                                          border: Border.all(
+                                              color: Colors.black26, width: 3),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 2,
+                                              offset: Offset(0,
+                                                  0), // changes position of shadow
+                                            ),
+                                          ],
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30)),
+                                        ),
+                                        padding: EdgeInsets.only(
+                                            left: 5,
+                                            right: 5,
+                                            top: 5,
+                                            bottom: 5),
+                                        child: Column(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 15, right: 15, top: 5),
+                                              child: Image.asset(
+                                                  'assets/bomb_icon.png'),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 5, right: 5, top: 7.5),
+                                              child: Text(
+                                                remainingBombs == null
+                                                    ? ""
+                                                    : "$remainingBombs Left",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
                                                               .width *
-                                                              0.03,
-                                                          fontWeight: FontWeight.w100,
-                                                        ),
-                                                      ),
-                                                  ),
+                                                          0.03,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
                                     ),
                                     GestureDetector(
                                       onTap: () => tappedClock(),
-                                      child:
-                                      Container(height: 90.0, width: 90.0,
-
+                                      child: Container(
+                                        height: 90.0,
+                                        width: 90.0,
                                         decoration: BoxDecoration(
-                                          color: Color.fromRGBO(37, 38, 65, 0.7),
+                                          color:
+                                              Color.fromRGBO(37, 38, 65, 0.7),
+                                          border: Border.all(
+                                              color: Colors.black26, width: 3),
                                           boxShadow: [
                                             BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 5)
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 2,
+                                              offset: Offset(0,
+                                                  0), // changes position of shadow
+                                            ),
                                           ],
-                                          border: Border.all(
-                                              color: Colors.white,
-                                              width: 1),
-                                          borderRadius:
-                                          BorderRadius.all(Radius.circular(30)),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30)),
                                         ),
-                                        padding: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
-                                        child:
-                                        Column(
+                                        padding: EdgeInsets.only(
+                                            left: 5,
+                                            right: 5,
+                                            top: 5,
+                                            bottom: 5),
+                                        child: Column(
                                           children: [
                                             Padding(
-                                              padding: EdgeInsets.only(left: 15, right: 15, top: 5),
-                                              child:
-                                              Image.asset('assets/clock_icon.png'),
+                                              padding: EdgeInsets.only(
+                                                  left: 15, right: 15, top: 5),
+                                              child: Image.asset(
+                                                  'assets/clock_icon.png'),
                                             ),
                                             Padding(
-                                              padding: EdgeInsets.only(left: 5, right: 5, top: 7.5),
-                                              child:
-                                              Text(
-                                                "3 Left",
+                                              padding: EdgeInsets.only(
+                                                  left: 5, right: 5, top: 7.5),
+                                              child: Text(
+                                                remainingClocks == null
+                                                    ? ""
+                                                    : "$remainingClocks Left",
                                                 style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: MediaQuery.of(context).size
-                                                      .width *
-                                                      0.03,
-                                                  fontWeight: FontWeight.w100,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.03,
+                                                  fontWeight: FontWeight.w400,
                                                 ),
                                               ),
                                             ),
@@ -272,42 +316,55 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                     ),
                                     GestureDetector(
                                       onTap: () => tappedHourglass(),
-                                      child:
-                                      Container(height: 90.0, width: 90.0,
-
+                                      child: Container(
+                                        height: 90.0,
+                                        width: 90.0,
                                         decoration: BoxDecoration(
-                                          color: Color.fromRGBO(37, 38, 65, 0.7),
+                                          color:
+                                              Color.fromRGBO(37, 38, 65, 0.7),
+                                          border: Border.all(
+                                              color: Colors.black26, width: 3),
                                           boxShadow: [
                                             BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 5)
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 2,
+                                              offset: Offset(0,
+                                                  0), // changes position of shadow
+                                            ),
                                           ],
-                                          border: Border.all(
-                                              color: Colors.white,
-                                              width: 1),
-                                          borderRadius:
-                                          BorderRadius.all(Radius.circular(30)),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30)),
                                         ),
-                                        padding: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
-                                        child:
-                                        Column(
+                                        padding: EdgeInsets.only(
+                                            left: 5,
+                                            right: 5,
+                                            top: 5,
+                                            bottom: 5),
+                                        child: Column(
                                           children: [
                                             Padding(
-                                              padding: EdgeInsets.only(left: 21, right: 21, top: 5),
-                                              child:
-                                              Image.asset('assets/hourglass_icon.png'),
+                                              padding: EdgeInsets.only(
+                                                  left: 21, right: 21, top: 5),
+                                              child: Image.asset(
+                                                  'assets/hourglass_icon.png'),
                                             ),
                                             Padding(
-                                              padding: EdgeInsets.only(left: 5, right: 5, top: 7.5),
-                                              child:
-                                              Text(
-                                                "1 Left",
+                                              padding: EdgeInsets.only(
+                                                  left: 5, right: 5, top: 7.5),
+                                              child: Text(
+                                                remainingHourglasses == null
+                                                    ? ""
+                                                    : "$remainingHourglasses Left",
                                                 style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: MediaQuery.of(context).size
-                                                      .width *
-                                                      0.03,
-                                                  fontWeight: FontWeight.w100,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.03,
+                                                  fontWeight: FontWeight.w400,
                                                 ),
                                               ),
                                             ),
@@ -317,9 +374,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                     ),
                                   ],
                                 ),
-                                SizedBox(height:15.0),
+                                SizedBox(height: 15.0),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     OutlineGradientButton(
                                       child: SizedBox(
@@ -327,18 +385,22 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                         height: 52,
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: <Widget>[
-                                            Text( '${timeController.timevalue}', style:
-                                            TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 25)),
+                                            Text('${timeController.timevalue}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 25)),
                                           ],
                                         ),
                                       ),
                                       gradient: LinearGradient(
-                                        colors: [Theme.of(context).primaryColor, Theme.of(context).secondaryHeaderColor],
+                                        colors: [
+                                          Theme.of(context).primaryColor,
+                                          Theme.of(context).secondaryHeaderColor
+                                        ],
                                         begin: Alignment(-1, -1),
                                         end: Alignment(2, 2),
                                       ),
@@ -346,22 +408,27 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                       padding: EdgeInsets.zero,
                                       radius: Radius.circular(26),
                                     ),
-
-                                    Container(height: 50.0, width: 50.0,
-                                      decoration: BoxDecoration(
-                                        color: Color.fromRGBO(37, 38, 65, 0.7),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 5)
-                                        ],
-                                        border: Border.all(
-                                            color: Theme.of(context).primaryColor,
-                                            width: 1),
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(25)),
+                                    SizedBox(width: 5),
+                                    Expanded(
+                                      child: Container(
+                                        height: 50.0,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(37, 38, 65, 0.7),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 5)
+                                          ],
+                                          border: Border.all(
+                                              color: Colors.white.withOpacity(0.3),
+                                              width: 3),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(25)),
+                                        ),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 15),
                                       ),
-                                      padding: EdgeInsets.symmetric(vertical: 15),
                                     ),
                                   ],
                                 ),
@@ -369,38 +436,41 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                             ),
                           ),
                         ),
-
-
                         Column(
                           children: <Widget>[
                             Padding(
-                              padding: const EdgeInsets.only(top: 25, bottom: 0, left: 20, right: 10),
-                              child:
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    IconButton(
-                                      icon: Icon(Icons.favorite),
-                                      color: Colors.red,
-                                      onPressed: () => Navigator.pop(context),
+                              padding: const EdgeInsets.only(
+                                  top: 25, bottom: 0, left: 20, right: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.favorite),
+                                    color: Colors.red,
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(0),
+                                    child: Text(
+                                      remainingLives == null
+                                          ? ''
+                                          : '${user.lives}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.07,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                    Padding(
-                                        padding: const EdgeInsets.all(0),
-                                        child: Text(
-                                          '3',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize:
-                                            MediaQuery.of(context).size.width * 0.07,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                    ),
-                                    Spacer(),
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(bottom: 10, right: 30),
+                                  ),
+                                  Spacer(),
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: 10, right: 30),
                                         child: Countup(
                                           begin: lastPoints,
                                           end: points,
@@ -408,147 +478,124 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                           separator: ',',
                                           style: TextStyle(
                                             color: Colors.white,
-                                            fontSize:
-                                            MediaQuery.of(context).size.width * 0.07,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.07,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                        )
-
-                                        ),
-                                    ),
-                                  ],
-                                ),
+                                        )),
+                                  ),
+                                ],
+                              ),
                             ),
-
                             SizedBox(height: 20.0),
                             Text(
                               _currentQuestion.synonymOrAntonym,
                               style: TextStyle(
-                                color: _currentQuestion
-                                    .synonymOrAntonym ==
-                                    "synonym"
-                                    ? Theme.of(context)
-                                    .secondaryHeaderColor
-                                    : Theme.of(context)
-                                    .primaryColor,
-                                fontSize: MediaQuery.of(context)
-                                    .size
-                                    .width *
-                                    0.075,
+                                color: _currentQuestion.synonymOrAntonym ==
+                                        "synonym"
+                                    ? Theme.of(context).secondaryHeaderColor
+                                    : Theme.of(context).primaryColor,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.075,
                               ),
                             ),
                             Text(
                               _currentQuestion.word,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: MediaQuery.of(context).size
-                                                        .width *
-                                    0.15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-
-
-
-
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Expanded(
-                              child:
-                              Container(
+                              child: Container(
                                 color: Colors.transparent,
-                                child:
-                                Column(
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-
-                                _currentQuestion == null
-                                    ? Center(child: CircularProgressIndicator())
-                                    : ListView.builder(
-                                        itemCount: count,
-                                    shrinkWrap: true,
-                                        itemBuilder: (context, index) {
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 30),
-
-
-                                            child: Padding(
-                                              padding: EdgeInsets.all(15),
-                                              child: _tappableAnimatedContainer(
-                                                  answers[index]
-                                                        .toUpperCase(),
-                                                    index % 2 == 0,
-                                                    _currentQuestion
-                                                            .synonymOrAntonym ==
-                                                        "synonym", () {
-                                                  _animateFlag = false;
-                                                  answerQuestion(index);
-                                                  HapticFeedback.lightImpact();
-                                                }),
-
-                                            ),
-                                          );
-                                        }),
-                              ],
-                              ),
+                                    _currentQuestion == null
+                                        ? Center(
+                                            child: CircularProgressIndicator())
+                                        : ListView.builder(
+                                            itemCount: count,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              return Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 30),
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(15),
+                                                  child: _tappableAnimatedContainer(
+                                                      answers[index]
+                                                          .toUpperCase(),
+                                                      index % 2 == 0,
+                                                      _currentQuestion
+                                                              .synonymOrAntonym ==
+                                                          "synonym", () {
+                                                    _animateFlag = false;
+                                                    answerQuestion(index);
+                                                    HapticFeedback
+                                                        .lightImpact();
+                                                  }),
+                                                ),
+                                              );
+                                            }),
+                                  ],
+                                ),
                               ),
                             ),
                             SizedBox(height: 185),
                           ],
                         ),
                         IgnorePointer(
-                          child:
-
-                        Padding(
-                          padding: EdgeInsets.all(0.0),
-                          child:
-                            Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  border: Border.all(
-                                      color: Colors.black,
-                                      width: 20),
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(16)),
-                                ),
-
+                          child: Padding(
+                            padding: EdgeInsets.all(0.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border:
+                                    Border.all(color: Colors.black, width: 20),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(16)),
+                              ),
                             ),
-                        ),
-                        ),
-                    IgnorePointer(
-                      child:
-                        Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child:
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                  color: Theme.of(context).primaryColor,
-                                  width: 2.5),
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(16)),
-                            ),
-
                           ),
                         ),
-                    ),
-                    IgnorePointer(
-                      child:
-                        Padding(
-                          padding: EdgeInsets.all(15.0),
-                          child:
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                  color: Theme.of(context).secondaryHeaderColor,
-                                  width: 2.5),
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(16)),
+                        IgnorePointer(
+                          child: Padding(
+                            padding: EdgeInsets.all(5.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 2.5),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(16)),
+                              ),
                             ),
-
                           ),
                         ),
-                    ),
+                        IgnorePointer(
+                          child: Padding(
+                            padding: EdgeInsets.all(15.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(
+                                    color:
+                                        Theme.of(context).secondaryHeaderColor,
+                                    width: 2.5),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(16)),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -568,20 +615,14 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         duration: Keys.playAnimDuration,
         padding: EdgeInsets.all(15.0),
         decoration: BoxDecoration(
-
-              color: Color.fromRGBO(37, 38, 65, 0.7),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 5)
-              ],
-              border: Border.all(
-                  color: synonym
-                      ? Theme.of(context).secondaryHeaderColor
-                      : Theme.of(context).primaryColor,
-                  width: 1),
-              borderRadius:
-              BorderRadius.all(Radius.circular(30)),
+          color: Color.fromRGBO(37, 38, 65, 0.7),
+          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
+          border: Border.all(
+              color: synonym
+                  ? Theme.of(context).secondaryHeaderColor
+                  : Theme.of(context).primaryColor,
+              width: 1),
+          borderRadius: BorderRadius.all(Radius.circular(30)),
         ),
         width: _animateFlag ? MediaQuery.of(context).size.width * 0.8 : 0,
         child: Center(
@@ -630,7 +671,6 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       lastPoints = points;
 
       setState(() {
-
         points += 100.0;
         answer = "correct";
       });
@@ -666,11 +706,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
           context,
           MaterialPageRoute(
               builder: (_) => RoundCompleted(
-                timedOrContinous: Keys.timed,
-                difficulty: widget.difficulty,
-                earnedXP: points.toInt(),
-                streakXP: streakPoints.toInt(),
-                remainingLives: remainingLives,
+                    timedOrContinous: Keys.timed,
+                    difficulty: widget.difficulty,
+                    earnedXP: points.toInt(),
+                    streakXP: streakPoints.toInt(),
+                    remainingLives: remainingLives,
                   )));
       return;
     }
@@ -686,6 +726,31 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     await _pickQuestion();
   }
 
+  fetchStoredUser() async {
+    var prefResult = (await SharedPreferences.getInstance()).get(Keys.user);
+
+    user = LocalUser.fromMap(json.decode(prefResult));
+    setState(() {
+      remainingLives = user.lives == null ? 3 : user.lives;
+      remainingBombs = user.bombs == null ? 5 : user.bombs;
+      remainingClocks = user.clocks == null ? 5 : user.clocks;
+      remainingHourglasses = user.hourglasses == null ? 5 : user.hourglasses;
+    });
+  }
+
+  fetchUser() async {
+    debugPrint("Fetching user");
+    user = await AuthHelper().getRemoteUser(context);
+    debugPrint('Got ${user.email}');
+    setState(() {
+      debugPrint('Lives ${user.lives}');
+      remainingLives = user.lives == null ? 3 : user.lives;
+      remainingBombs = user.bombs == null ? 5 : user.bombs;
+      remainingClocks = user.clocks == null ? 5 : user.clocks;
+      remainingHourglasses = user.hourglasses == null ? 5 : user.hourglasses;
+    });
+  }
+
   _pickQuestion() async {
     if (widget.wordType != null)
       index++;
@@ -699,11 +764,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
           context,
           MaterialPageRoute(
               builder: (_) => RoundCompleted(
-                timedOrContinous: Keys.timed,
-                difficulty: widget.difficulty,
-                earnedXP: points.toInt(),
-                streakXP: streakPoints.toInt(),
-                remainingLives: remainingLives,
+                    timedOrContinous: Keys.timed,
+                    difficulty: widget.difficulty,
+                    earnedXP: points.toInt(),
+                    streakXP: streakPoints.toInt(),
+                    remainingLives: remainingLives,
                   )));
     }
     var ques = questionsList[index];
@@ -724,11 +789,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
             context,
             MaterialPageRoute(
                 builder: (_) => RoundCompleted(
-                  timedOrContinous: Keys.timed,
-                  difficulty: widget.difficulty,
-                  earnedXP: points.toInt(),
-                  streakXP: streakPoints.toInt(),
-                  remainingLives: remainingLives,
+                      timedOrContinous: Keys.timed,
+                      difficulty: widget.difficulty,
+                      earnedXP: points.toInt(),
+                      streakXP: streakPoints.toInt(),
+                      remainingLives: remainingLives,
                     )));
       } else {
         if (!usedquestionslist.contains(ques.id)) {
@@ -760,18 +825,18 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   prepareAnswers() {
     if (_currentQuestion.answers.length > count) {
       answers.clear();
-      var correctAnswer = _currentQuestion.answers[_currentQuestion.correctAnswer];
+      var correctAnswer =
+          _currentQuestion.answers[_currentQuestion.correctAnswer];
       answers.add(correctAnswer);
 
-      for(var i=0; i<_currentQuestion.answers.length; i++) {
+      for (var i = 0; i < _currentQuestion.answers.length; i++) {
         var element = _currentQuestion.answers[i];
-          if (answers.length < count) {
-              if (element != correctAnswer)
-              {
-                answers.add(element);
-              }
+        if (answers.length < count) {
+          if (element != correctAnswer) {
+            answers.add(element);
           }
         }
+      }
     }
   }
 
@@ -798,7 +863,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       timeController.timer.cancel();
       timeController.setTimer(_currentTime);
       print("Pause");
-      navigate(_currentTime, context);
+      //navigate(_currentTime, context);
       setState(() {
         _correctAnswers = 0;
         _wrongAnswers = 0;
@@ -845,11 +910,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         content: Text(
             'Are you sure you want to go back?\nAll your game progress will be lost.'),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () => Get.back(closeOverlays: true),
             child: Text('No'),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text('Yes'),
           ),
@@ -887,58 +952,55 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     // });
   }
 
+  // Pause for 5 seconds
   tappedHourglass() {
-    HapticFeedback.lightImpact();
-    setState(() {
-      _currentTime += 5;
-    });
     AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/Sound_Correct.wav"),
+      Audio("assets/pause.wav"),
       autoStart: true,
       showNotification: false,
     );
+
+    HapticFeedback.lightImpact();
+    timeController.pauseValue += 5;
   }
 
+  // Extra 5 seconds
   tappedClock() {
-    HapticFeedback.lightImpact();
+    timeController.timevalue += 5;
     AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/Sound_Correct.wav"),
+      Audio("assets/clock.wav"),
       autoStart: true,
       showNotification: false,
     );
+
+    HapticFeedback.lightImpact();
   }
 
   tappedBomb() {
     print("Tapped bomb");
-    HapticFeedback.lightImpact();
     AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/Sound_Correct.wav"),
+      Audio("assets/bomb.wav"),
       autoStart: true,
       showNotification: false,
     );
+
+    HapticFeedback.lightImpact();
+
   }
 
-}
-
-class _MarksBox extends StatelessWidget {
-  final String marks;
-
-  _MarksBox(this.marks);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      color: Colors.transparent,
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: Text(
-        marks,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: MediaQuery.of(context).size.width * 0.04,
-          fontWeight: FontWeight.normal,
-        ),
-      ),
-    );
+  Future<void> readUserData() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .then((querySnapshot) {
+        print(querySnapshot.data());
+        //userName = querySnapshot.data()['userName'];
+        //email = querySnapshot.data()['email'];
+        setState(() {});
+      });
+    }
   }
 }

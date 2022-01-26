@@ -1,14 +1,10 @@
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/ui/profile/edit_account.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/single_player/history.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
-import 'package:synonym_app/models/localuser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HelpPage extends StatefulWidget {
@@ -75,7 +71,7 @@ class _HelpPageState extends State<HelpPage> {
                           height: MediaQuery.of(context).size.width * 0.075,
                           width: MediaQuery.of(context).size.width * 0.075,
                           child: new IconButton(
-                            icon: Icon(Icons.settings,
+                            icon: Icon(Icons.edit,
                                 size:
                                     MediaQuery.of(context).size.width * 0.075),
                             color: Colors.grey,
@@ -99,8 +95,6 @@ class _HelpPageState extends State<HelpPage> {
                     child: ListView(children: <Widget>[
                       _basicDetails(),
                       _statistics(),
-                      _achievements(),
-                      _avatars(),
                       _logout(),
                     ]),
                   ),
@@ -346,7 +340,7 @@ class _HelpPageState extends State<HelpPage> {
                       BoxShadow(color: Colors.black26, blurRadius: 5)
                     ],
                     border: Border.all(
-                        color: Theme.of(context).accentColor, width: 1),
+                        color: Theme.of(context).secondaryHeaderColor, width: 1),
                     borderRadius: BorderRadius.all(Radius.circular(7)),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 15),
@@ -372,127 +366,127 @@ class _HelpPageState extends State<HelpPage> {
     );
   }
 
-  Widget _achievements() {
-    return Column(
-      children: [
-        Divider(color: Colors.white, height: 5.0),
-        SizedBox(height: 30.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: [
-              Row(children: [
-                Text(
-                  "Achievements",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: MediaQuery.of(context).size.width * 0.07,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ]),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: (MediaQuery.of(context).size.width / 2.0) - 45,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          boxShadow: [
-                            BoxShadow(color: Colors.black26, blurRadius: 5)
-                          ],
-                          border: Border.all(color: Colors.white60, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Placeholder",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 30.0)
-      ],
-    );
-  }
-
-  Widget _avatars() {
-    return Column(
-      children: [
-        Divider(color: Colors.white, height: 5.0),
-        SizedBox(height: 30.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: [
-              Row(children: [
-                Text(
-                  "Avatars",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: MediaQuery.of(context).size.width * 0.07,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ]),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: (MediaQuery.of(context).size.width / 2.0) - 45,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          boxShadow: [
-                            BoxShadow(color: Colors.black26, blurRadius: 5)
-                          ],
-                          border: Border.all(color: Colors.white60, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Placeholder",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 30.0)
-      ],
-    );
-  }
+  // Widget _achievements() {
+  //   return Column(
+  //     children: [
+  //       Divider(color: Colors.white, height: 5.0),
+  //       SizedBox(height: 30.0),
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 30),
+  //         child: Column(
+  //           children: [
+  //             Row(children: [
+  //               Text(
+  //                 "Achievements",
+  //                 style: TextStyle(
+  //                   color: Colors.white,
+  //                   fontSize: MediaQuery.of(context).size.width * 0.07,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ]),
+  //             SizedBox(height: 30),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 Column(
+  //                   children: [
+  //                     Container(
+  //                       width: (MediaQuery.of(context).size.width / 2.0) - 45,
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.transparent,
+  //                         boxShadow: [
+  //                           BoxShadow(color: Colors.black26, blurRadius: 5)
+  //                         ],
+  //                         border: Border.all(color: Colors.white60, width: 1),
+  //                         borderRadius: BorderRadius.all(Radius.circular(7)),
+  //                       ),
+  //                       padding: EdgeInsets.symmetric(vertical: 15),
+  //                       child: Row(
+  //                         mainAxisAlignment: MainAxisAlignment.center,
+  //                         children: [
+  //                           Text(
+  //                             "Placeholder",
+  //                             style: TextStyle(
+  //                                 color: Colors.white,
+  //                                 fontWeight: FontWeight.normal,
+  //                                 fontSize: 12),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       SizedBox(height: 30.0)
+  //     ],
+  //   );
+  // }
+  //
+  // Widget _avatars() {
+  //   return Column(
+  //     children: [
+  //       Divider(color: Colors.white, height: 5.0),
+  //       SizedBox(height: 30.0),
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 30),
+  //         child: Column(
+  //           children: [
+  //             Row(children: [
+  //               Text(
+  //                 "Avatars",
+  //                 style: TextStyle(
+  //                   color: Colors.white,
+  //                   fontSize: MediaQuery.of(context).size.width * 0.07,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ]),
+  //             SizedBox(height: 30),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 Column(
+  //                   children: [
+  //                     Container(
+  //                       width: (MediaQuery.of(context).size.width / 2.0) - 45,
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.transparent,
+  //                         boxShadow: [
+  //                           BoxShadow(color: Colors.black26, blurRadius: 5)
+  //                         ],
+  //                         border: Border.all(color: Colors.white60, width: 1),
+  //                         borderRadius: BorderRadius.all(Radius.circular(7)),
+  //                       ),
+  //                       padding: EdgeInsets.symmetric(vertical: 15),
+  //                       child: Row(
+  //                         mainAxisAlignment: MainAxisAlignment.center,
+  //                         children: [
+  //                           Text(
+  //                             "Placeholder",
+  //                             style: TextStyle(
+  //                                 color: Colors.white,
+  //                                 fontWeight: FontWeight.normal,
+  //                                 fontSize: 12),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       SizedBox(height: 30.0)
+  //     ],
+  //   );
+  // }
 
   Widget _logout() {
     return Column(
@@ -526,7 +520,7 @@ class _HelpPageState extends State<HelpPage> {
                               BoxShadow(color: Colors.black26, blurRadius: 5)
                             ],
                             border: Border.all(
-                                color: Theme.of(context).accentColor, width: 1),
+                                color: Theme.of(context).secondaryHeaderColor, width: 1),
                             borderRadius: BorderRadius.all(Radius.circular(7)),
                           ),
                           padding: EdgeInsets.symmetric(vertical: 15),

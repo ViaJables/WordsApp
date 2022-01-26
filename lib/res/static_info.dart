@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class StaticInfo {
   // static User currentUser;
   static showToast(BuildContext context, String msg, {int duration = 3}) =>
-      Toast.show(
-        msg,
-        context,
-//        textColor: Colors.black,
-//        backgroundColor: Colors.white,
-        duration: duration,
+      Fluttertoast.showToast(
+          msg: msg,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
       );
 }
