@@ -1,3 +1,3 @@
 class Constants {
-  static String useruid;
+  static String useruid = "";
 }

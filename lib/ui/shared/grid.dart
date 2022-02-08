@@ -10,11 +10,11 @@ class _GridPainterState extends State<GridPainter>
     with TickerProviderStateMixin {
   var _sides = 3.0;
 
-  Animation<double> animation;
-  AnimationController controller;
+  late Animation<double> animation;
+  late AnimationController controller;
 
-  Animation<double> animation2;
-  AnimationController controller2;
+  late Animation<double> animation2;
+  late AnimationController controller2;
 
   @override
   void initState() {

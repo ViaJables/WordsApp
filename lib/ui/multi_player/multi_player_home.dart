@@ -14,13 +14,13 @@ import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 
 class MultiPlayerHome extends StatefulWidget {
-  MultiPlayerHome({Key key}) : super(key: key);
+  MultiPlayerHome({Key? key}) : super(key: key);
 
   @override
   _MultiPlayerHomeState createState() => _MultiPlayerHomeState();
 }
 
-class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
+class _MultiPlayerHomeState extends State<MultiPlayerHome> {
   var _subscription, myUid;
 
   @override
@@ -170,13 +170,13 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) return Container();
 
-                            var list = snapshot.data.docs;
+                            var list = snapshot.data!.docs;
 
                             return ListView.builder(
                               itemCount: list.length,
                               itemBuilder: (_, index) {
                                 GameInProgress game =
-                                    GameInProgress.fromMap(list[index].data());
+                                    GameInProgress.fromMap(list[index].data() as Map<String, dynamic>);
 
                                 var padding =
                                     MediaQuery.of(context).size.width * 0.4;
@@ -208,9 +208,9 @@ class _MultiPlayerHomeState extends State<MultiPlayerHome> with AfterInitMixin {
                                               return Container();
 
                                             LocalUser user = LocalUser.fromMap(
-                                                futureSnap.data.data());
+                                                futureSnap.data!.data() as Map<String, dynamic>);
 
-                                            String text;
+                                            String text = "";
                                             if (game.turn == Keys.yourTurn)
                                               text =
                                                   'Your turn with\n${user.name}';

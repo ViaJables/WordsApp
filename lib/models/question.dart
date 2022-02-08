@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:synonym_app/res/keys.dart';
 
 class Question extends Equatable {
@@ -11,11 +10,11 @@ class Question extends Equatable {
   final List<String> answers;
 
   Question({
-    @required this.id,
-    @required this.word,
-    @required this.synonymOrAntonym,
-    @required this.correctAnswer,
-    @required this.answers,
+    required this.id,
+    required this.word,
+    required this.synonymOrAntonym,
+    required this.correctAnswer,
+    required this.answers,
   });
 
   Map<String, dynamic> toMap() {
@@ -48,40 +47,40 @@ class Question extends Equatable {
 }
 
 class QuestionProvider {
-  List<Question> _askedQuestions;
-  Random _random;
+  List<Question> askedQuestions = [];
+  Random random = Random();
 
-  QuestionProvider() {
-    _random = Random();
-    _askedQuestions = [];
-  }
+  QuestionProvider( {
+    random,
+    askedQuestions,
+  });
 
-  void reset() => _askedQuestions.clear();
+  void reset() => askedQuestions.clear();
 
   Future<Question> getRandomQuestion() async {
     Question question;
 
     while (true) {
-      int randomNum = _random.nextInt(4);
+      int randomNum = random.nextInt(4);
       var result = (await FirebaseFirestore.instance
           .collection(Keys.questions)
           .where('correctAnswer', isEqualTo: randomNum)
           .get());
 
       if (result.size == 0) continue;
-      if (result.size >= _askedQuestions.length / 1.5) _askedQuestions.clear();
+      if (result.size >= askedQuestions.length / 1.5) askedQuestions.clear();
 
       while (true) {
         var doc =
-            Question.fromMap(result.docs[_random.nextInt(result.size)].data());
-        if (!_askedQuestions.contains(doc)) {
+            Question.fromMap(result.docs[random.nextInt(result.size)].data());
+        if (!askedQuestions.contains(doc)) {
           question = doc;
           break;
         }
       }
       if (question != null) break;
     }
-    _askedQuestions.add(question);
+    askedQuestions.add(question);
 
     return question;
   }

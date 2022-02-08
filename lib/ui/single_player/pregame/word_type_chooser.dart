@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/single_player/single_player_game_page.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
+import 'package:bouncing_widget/bouncing_widget.dart';
 
 class WordTypeChooser extends StatelessWidget {
   final String gameType;
@@ -9,25 +10,13 @@ class WordTypeChooser extends StatelessWidget {
   final bool continuous;
 
   WordTypeChooser({
-    @required this.gameType,
-    @required this.difficulty,
-    @required this.continuous,
+    required this.gameType,
+    required this.difficulty,
+    required this.continuous,
   });
 
   @override
   Widget build(BuildContext context) {
-    final onTap = (wordType) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => SinglePlayerGamePage(
-                    gameType: gameType,
-                    wordType: wordType,
-                    continuous: continuous,
-                    difficulty: difficulty,
-                  )));
-    };
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -47,7 +36,6 @@ class WordTypeChooser extends StatelessWidget {
                           color: Colors.white,
                           onPressed: () => Navigator.pop(context),
                         ),
-
                         Spacer(),
                       ],
                     ),
@@ -71,8 +59,12 @@ class WordTypeChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 60),
-                        GestureDetector(
-                          onTap: () => onTap(Keys.synonym),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            onTap(context, Keys.synonym);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -98,8 +90,12 @@ class WordTypeChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () => onTap(Keys.antonym),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            onTap(context, Keys.antonym);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -125,8 +121,12 @@ class WordTypeChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () => onTap(null),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            onTap(context, Keys.allwords);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -159,5 +159,17 @@ class WordTypeChooser extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  onTap(BuildContext context, wordType) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => SinglePlayerGamePage(
+                  gameType: gameType,
+                  wordType: wordType,
+                  continuous: continuous,
+                  difficulty: difficulty,
+                )));
   }
 }

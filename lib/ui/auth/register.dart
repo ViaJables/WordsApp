@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/constants.dart';
@@ -14,7 +13,7 @@ import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 
 class Register extends StatefulWidget {
-  Register({Key key}) : super(key: key);
+  const Register({Key? key}) : super(key: key);
 
   @override
   _RegisterState createState() => _RegisterState();
@@ -181,23 +180,24 @@ class _RegisterState extends State<Register> {
       return;
     }
 
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
 
     LocalUser user = LocalUser(
-      uid: null,
+      uid: "",
       userName: userName,
       email: email,
-      image: null,
+      image: "",
+      name: ""
     );
 
     AuthHelper helper = AuthHelper();
     String result = await helper.signUp(context, user, password);
-    dialog.hide();
+    //dialog.hide();
 
     if (result == null) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
@@ -216,7 +216,7 @@ class _RegisterState extends State<Register> {
 }
 
 class AddProfilePage extends StatefulWidget {
-  AddProfilePage({Key key}) : super(key: key);
+  const AddProfilePage({Key? key}) : super(key: key);
 
   @override
   _AddProfilePageState createState() => _AddProfilePageState();
@@ -224,8 +224,8 @@ class AddProfilePage extends StatefulWidget {
 
 class _AddProfilePageState extends State<AddProfilePage> {
   TextEditingController name = new TextEditingController();
-  File imageFile;
-  File _image;
+  late File imageFile;
+  late File _image;
   final picker = ImagePicker();
   String image = "";
 
@@ -343,7 +343,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
   Future getImage() async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
-
+      if (pickedFile == null) { return null; }
       await _cropImage(File(pickedFile.path));
     } catch (e) {
       print(e.toString());
@@ -352,10 +352,11 @@ class _AddProfilePageState extends State<AddProfilePage> {
 
   Future getgalleryimg() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile == null) { return null; }
     await _cropImage(File(pickedFile.path));
   }
 
-  Widget butt(Function ontap, String name) {
+  Widget butt(Function()? ontap, String name) {
     return GestureDetector(
       onTap: ontap,
       child: Container(
@@ -374,12 +375,12 @@ class _AddProfilePageState extends State<AddProfilePage> {
   }
 
   Future<void> addData() async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
     if (image != null) {
       print("adding img");
       await FirebaseFirestore.instance
@@ -396,6 +397,6 @@ class _AddProfilePageState extends State<AddProfilePage> {
       //AuthHelper helper = AuthHelper();
       //var result = await helper.username(context, name.text);
     }
-    dialog.hide();
+    //dialog.hide();
   }
 }

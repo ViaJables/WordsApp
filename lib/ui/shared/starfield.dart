@@ -16,7 +16,7 @@ class Starfield extends StatelessWidget {
 class StarfieldAnimationScreen extends StatefulWidget {
   final Size screenSize;
 
-  StarfieldAnimationScreen({Key key, @required this.screenSize})
+  StarfieldAnimationScreen({Key? key, required this.screenSize})
       : super(key: key);
 
   @override
@@ -29,18 +29,18 @@ class StarfieldScreenState extends State<StarfieldAnimationScreen>
   static const double kMaxRadius = 128.0;
   static const double durationSlowMode = 2.0;
 
-  AnimationController animControlStar;
+  late AnimationController animControlStar;
 
-  Animation fadeAnimStar1,
+  late Animation fadeAnimStar1,
       fadeAnimStar2,
       fadeAnimStar3,
       fadeAnimStar4,
       sizeAnimStar,
       rotateAnimStar;
 
-  Size screenSize;
-  List<Star> listStar;
-  int numStars;
+  late Size screenSize;
+  List<Star> listStar = [];
+  int numStars = 30;
 
   RectTween createRectTween(Rect begin, Rect end) {
     return new MaterialRectArcTween(begin: begin, end: end);
@@ -228,9 +228,9 @@ class Star {
   int typeFade;
 
   Star(
-      {@required this.left,
-      @required this.top,
-      @required this.extraSize,
-      @required this.angle,
-      @required this.typeFade});
+      {required this.left,
+      required this.top,
+      required this.extraSize,
+      required this.angle,
+      required this.typeFade});
 }

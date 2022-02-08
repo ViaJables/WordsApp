@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/models/localuser.dart';
-import 'package:synonym_app/ui/start_point/intro_screen.dart';
+import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,7 +45,7 @@ class SynonymApp extends StatelessWidget {
             secondaryHeaderColor: Color.fromRGBO(0, 182, 232, 1),
             backgroundColor: Color.fromRGBO(37, 38, 65, 0.7),
           ),
-          home: IntroScreen()),
+          home: Home()),
     );
   }
 }

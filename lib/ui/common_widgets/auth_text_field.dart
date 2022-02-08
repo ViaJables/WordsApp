@@ -7,8 +7,8 @@ class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
 
   AuthTextField({
-    @required this.title,
-    @required this.controller,
+    required this.title,
+    required this.controller,
     this.obscure = false,
   });
 
@@ -17,7 +17,7 @@ class AuthTextField extends StatefulWidget {
 }
 
 class _AuthTextFieldState extends State<AuthTextField> {
-  bool obscure;
+  bool obscure = false;
 
   @override
   void initState() {

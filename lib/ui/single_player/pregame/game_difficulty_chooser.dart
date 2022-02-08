@@ -2,32 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/single_player/pregame/word_type_chooser.dart';
+import 'package:bouncing_widget/bouncing_widget.dart';
 
 class GameDifficultyChooser extends StatelessWidget {
   final String gameType;
   final bool continuous;
 
   GameDifficultyChooser({
-    @required this.gameType,
-    @required this.continuous,
+    required this.gameType,
+    required this.continuous,
   });
 
   @override
   Widget build(BuildContext context) {
-    final onTap = (difficulty) {
-      Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => WordTypeChooser(
-              gameType: gameType,
-              continuous: false,
-              difficulty: difficulty,
-            ),
-            transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
-            transitionDuration: Duration(milliseconds: 100),
-          ));
-    };
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -47,7 +34,6 @@ class GameDifficultyChooser extends StatelessWidget {
                           color: Colors.white,
                           onPressed: () => Navigator.pop(context),
                         ),
-
                         Spacer(),
                       ],
                     ),
@@ -71,8 +57,12 @@ class GameDifficultyChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 60),
-                        GestureDetector(
-                          onTap: () => onTap(Keys.easy),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            toWordChooser(context, Keys.easy);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -98,8 +88,12 @@ class GameDifficultyChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () => onTap(Keys.medium),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            toWordChooser(context, Keys.medium);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -125,8 +119,12 @@ class GameDifficultyChooser extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () => onTap(Keys.hard),
+                        BouncingWidget(
+                          duration: Duration(milliseconds: 30),
+                          scaleFactor: 1.5,
+                          onPressed: () {
+                            toWordChooser(context, Keys.hard);
+                          },
                           child: Container(
                             width: double.infinity,
                             alignment: Alignment.center,
@@ -159,5 +157,22 @@ class GameDifficultyChooser extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  toWordChooser(BuildContext context, difficulty) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => WordTypeChooser(
+              gameType: gameType,
+              continuous: false,
+              difficulty: difficulty,
+            ),
+            transitionsBuilder: (c, anim, a2, child) =>
+                FadeTransition(opacity: anim, child: child),
+            transitionDuration: Duration(milliseconds: 100),
+          ));
+    });
   }
 }

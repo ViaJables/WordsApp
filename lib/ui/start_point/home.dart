@@ -1,24 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:synonym_app/models/game.dart';
-import 'package:synonym_app/models/localuser.dart';
 import 'package:synonym_app/res/keys.dart';
 import 'package:synonym_app/ui/auth/login_start.dart';
-import 'package:synonym_app/ui/multi_player/game_results.dart';
-import 'package:synonym_app/ui/multi_player/multi_player_game.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/single_player/pregame/game_difficulty_chooser.dart';
 import 'package:synonym_app/ui/shared/grid.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/ui/start_point/walk_through_page.dart';
 import 'package:synonym_app/ui/profile/help_page.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:synonym_app/ui/leaderboard/leaderboard.dart';
 import 'package:synonym_app/ui/start_point/home_bottom_card.dart';
-import 'package:synonym_app/ui/shared/animated_logo.dart';
+import 'package:synonym_app/ui/shared/animated_logo2.dart';
 import 'package:synonym_app/ui/single_player/timercontroller.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:bouncing_widget/bouncing_widget.dart';
+import 'package:synonym_app/ui/store/store.dart';
+import 'package:synonym_app/ui/single_player/game_complete/progress_screen.dart';
+import 'package:synonym_app/models/localuser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:synonym_app/ui/shared/pulsing_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synonym_app/ui/single_player/components/streak_bar.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -26,20 +30,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _animateFlag;
+  bool _animateFlag = false;
   var loggedIn = false;
+  var remainingLives = 0;
   TimerController countdownNextHeartController = TimerController();
   int currentHeartTime = 0;
-
+  var canClaimHeart = false;
+  var timeTillNextHeart = 0;
+  var hasClaimedDailyReward = false;
   // Ads
-  RewardedAd _rewardedAd;
+  late RewardedAd _rewardedAd;
 
   @override
   void initState() {
     super.initState();
-
+    _getUser();
     currentHeartTime = 600;
-
+    checkHearts();
     setState(() {
       loggedIn = FirebaseAuth.instance.currentUser != null;
       print("Logged in is $loggedIn");
@@ -55,6 +62,13 @@ class _HomeState extends State<Home> {
     countdownNextHeartController.addListener(() {
       setState(() {
         currentHeartTime = countdownNextHeartController.timevalue;
+        if (currentHeartTime == 0) {
+          setState(() {
+              canClaimHeart = true;
+          });
+        }
+
+
       });
     });
   }
@@ -65,11 +79,10 @@ class _HomeState extends State<Home> {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (c, a1, a2) =>
-            GameDifficultyChooser(
-              gameType: Keys.timed,
-              continuous: false,
-            ),
+        pageBuilder: (c, a1, a2) => GameDifficultyChooser(
+          gameType: Keys.timed,
+          continuous: false,
+        ),
         transitionsBuilder: (c, anim, a2, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: Duration(milliseconds: 100),
@@ -77,12 +90,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  format(Duration d) =>
-      d
-          .toString()
-          .split('.')
-          .first
-          .padLeft(8, "0");
+  format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
 
   @override
   void dispose() {
@@ -110,13 +118,11 @@ class _HomeState extends State<Home> {
                 child: Stack(
                   children: [
                     GridPainter(),
-                    HomeBottomCard(),
                     //AllUsers(),
                   ],
                 ),
               ),
             ),
-
             Column(
               children: <Widget>[
                 Expanded(
@@ -124,400 +130,377 @@ class _HomeState extends State<Home> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 0, left: 30),
-                              child: SizedBox(
-                                height: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.08,
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.08,
-                                child: new IconButton(
-                                  icon: Icon(Icons.settings,
-                                      size: MediaQuery
-                                          .of(context)
-                                          .size
-                                          .width *
-                                          0.08),
-                                  color: Colors.white,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (_) => HelpPage()));
-                                  },
-                                ),
-                              ),
-                            ),
-                            Spacer(),
+                        Container(
 
-                          ],
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height * 0.3,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: new AnimatedLogo2(),
+                          ),
                         ),
-                        Align(
-                            alignment: Alignment.topCenter,
-                            child: new AnimatedLogo(
-                                height: 230.0)),
-
-
                         SizedBox(
                           height: 15,
                         ),
                         Column(
                           children: <Widget>[
-
                             SizedBox(height: 30),
-                            GestureDetector(
-                              onTap: () =>
-                              {
-                                if (loggedIn)
-                                  {_startGame()}
-                                else
-                                  {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                WalkThroughPage()))
-                                  }
-                              },
-                              child: Container(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.8,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(37, 38, 65, 0.7),
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(60)),
-                                  border: Border.all(color: Theme
-                                      .of(context)
-                                      .secondaryHeaderColor, width: 1),
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 30),
-                                child:
-                                Padding(
-                                  padding: EdgeInsets.only(right: 15.0),
-                                  child:
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-
-                                    children: [
-                                      Icon(
-                                        Icons.play_arrow,
-                                        color: Colors.white,
-                                        size: 32.0,
+                            (remainingLives == 0)
+                                ? BouncingWidget(
+                                    duration: Duration(milliseconds: 30),
+                                    scaleFactor: 1.5,
+                                    onPressed: () {},
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Color.fromRGBO(37, 38, 65, 0.7),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(60)),
+                                        border: Border.all(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            width: 1),
                                       ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "PLAY",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 25),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 30),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 15.0),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.play_arrow,
+                                                  color: Colors.white,
+                                                  size: 32.0,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "PLAY",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontSize: 25),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              "No lives remaining",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
+                                    ),
+                                  )
+                                : PulsingWidget(
+                              child:
+                            BouncingWidget(
+                                    duration: Duration(milliseconds: 30),
+                                    scaleFactor: 1.5,
+                                    onPressed: () {
+                                      if (loggedIn) {
+                                        _startGame();
+                                      } else {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    WalkThroughPage()));
+                                      }
+                                    },
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Color.fromRGBO(37, 38, 65, 0.7),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(60)),
+                                        border: Border.all(
+                                            color: Theme.of(context)
+                                                .secondaryHeaderColor,
+                                            width: 1),
+                                      ),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 30),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 15.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.play_arrow,
+                                              color: Colors.white,
+                                              size: 32.0,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              "PLAY",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 25),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
                             ),
-
-
+                           
                             SizedBox(
                               height: 15,
                             ),
                             !loggedIn
                                 ? GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => LoginStart()));
-                              },
-                              child: Container(
-                                color: Colors.transparent,
-                                height: 30.0,
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width,
-                                child: Center(
-                                  child: Text(
-                                    "login",
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 20),
-                                  ),
-                                ),
-                              ),
-                            )
-                                : SizedBox(height: 0),
-
-
-                          ],
-                        ),
-                        Container(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height / 3,
-                          child: StreamBuilder(
-                            stream: FirebaseFirestore.instance
-                                .collection(Keys.user)
-                                .doc(Provider
-                                .of<LocalUser>(context)
-                                .uid)
-                                .collection(Keys.games)
-                                .snapshots(),
-                            builder: (_, snapshot) {
-                              if (snapshot.data == null) return Container();
-
-                              var list = snapshot.data.docs;
-
-                              return ListView.builder(
-                                itemCount: list.length,
-                                itemBuilder: (_, index) {
-                                  GameInProgress game =
-                                  GameInProgress.fromMap(list[index].data);
-
-                                  return InkWell(
                                     onTap: () {
-                                      if (game.turn == Keys.endGame)
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (_) =>
-                                                    GameResults(game.id)));
-                                      else
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (_) =>
-                                                    MultiPlayerGame(game)));
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => LoginStart()));
                                     },
                                     child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Theme
-                                                  .of(context)
-                                                  .secondaryHeaderColor)),
-                                      child: FutureBuilder<DocumentSnapshot>(
-                                        future: FirebaseFirestore.instance
-                                            .collection(Keys.user)
-                                            .doc(game.playingWith)
-                                            .get(),
-                                        builder: (context, futureSnap) {
-                                          if (futureSnap.connectionState ==
-                                              ConnectionState.waiting)
-                                            return Container();
-
-                                          LocalUser user = LocalUser.fromMap(
-                                              futureSnap.data.data());
-
-                                          return Row(
-                                            children: <Widget>[
-                                              Container(
-                                                width: 5,
-                                                height: MediaQuery
-                                                    .of(context)
-                                                    .size
-                                                    .width *
-                                                    0.19,
-                                                color:
-                                                game.turn == Keys.yourTurn
-                                                    ? Theme
-                                                    .of(context)
-                                                    .primaryColorDark
-                                                    : Colors.transparent,
-                                              ),
-                                              SizedBox(width: 10),
-                                              CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage:
-                                                NetworkImage(user.image),
-                                                backgroundColor:
-                                                Theme
-                                                    .of(context)
-                                                    .secondaryHeaderColor,
-                                              ),
-                                              SizedBox(width: 20),
-                                              Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Text(
-                                                    game.turn == Keys.yourTurn
-                                                        ? 'Your turn'
-                                                        .toUpperCase()
-                                                        : game.turn ==
-                                                        Keys
-                                                            .opponentsTurn
-                                                        ? 'Their turn'
-                                                        .toUpperCase()
-                                                        : 'Results are ready'
-                                                        .toUpperCase(),
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                      MediaQuery
-                                                          .of(context)
-                                                          .size
-                                                          .width *
-                                                          0.035,
-                                                      fontWeight:
-                                                      FontWeight.bold,
-                                                      color: game.turn ==
-                                                          Keys.yourTurn
-                                                          ? Theme
-                                                          .of(context)
-                                                          .primaryColorDark
-                                                          : Theme
-                                                          .of(context)
-                                                          .secondaryHeaderColor,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    user.name,
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                      MediaQuery
-                                                          .of(context)
-                                                          .size
-                                                          .width *
-                                                          0.04,
-                                                      color: Theme
-                                                          .of(context)
-                                                          .secondaryHeaderColor,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Expanded(child: Container()),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    right:
-                                                    MediaQuery
-                                                        .of(context)
-                                                        .size
-                                                        .width *
-                                                        0.02),
-                                                child: Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  color: Theme
-                                                      .of(context)
-                                                      .secondaryHeaderColor,
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        },
+                                      color: Colors.transparent,
+                                      height: 30.0,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Center(
+                                        child: Text(
+                                          "login",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 20),
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        )
+                                  )
+                                : SizedBox(height: 0),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
+
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
+
                 alignment: Alignment.topCenter,
                 height: 265.0,
                 width: double.infinity,
-                child:
-                Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-
-                    GestureDetector(
-                      onTap: () {
+                    BouncingWidget(
+                      duration: Duration(milliseconds: 30),
+                      scaleFactor: 1.5,
+                      onPressed: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => Leaderboard()));
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (c, a1, a2) => Store(),
+                            transitionsBuilder: (c, anim, a2, child) =>
+                                FadeTransition(opacity: anim, child: child),
+                            transitionDuration: Duration(milliseconds: 100),
+                          ),
+                        );
                       },
-                      child:
-                      Column(
+                      child: Column(
                         children: [
                           Container(
                             height: 80.0,
                             width: 80.0,
                             decoration: BoxDecoration(
                               color: Color.fromRGBO(37, 38, 65, 0.7),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(50)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(50)),
                               border: Border.all(color: Colors.white, width: 1),
                             ),
                             child: Padding(
                               padding: EdgeInsets.all(15.0),
-                              child:
-                              Image.asset(
-                                "assets/leaderboard/first_place.png",
-                                height: 40,
+                              child: Icon(
+                                Icons.store,
+                                color: Colors.white,
+                                size: 50.0,
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          Center(
-                            child: Text(
-                              "Leaderboard",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 20),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
+                    BouncingWidget(
+                      duration: Duration(milliseconds: 30),
+                      scaleFactor: 1.5,
+                      onPressed: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => Leaderboard()));
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (c, a1, a2) => Leaderboard(),
+                            transitionsBuilder: (c, anim, a2, child) =>
+                                FadeTransition(opacity: anim, child: child),
+                            transitionDuration: Duration(milliseconds: 100),
+                          ),
+                        );
                       },
-                      child:
-                      Column(
+                      child: Column(
                         children: [
                           Container(
                             height: 80.0,
                             width: 80.0,
                             decoration: BoxDecoration(
                               color: Color.fromRGBO(37, 38, 65, 0.7),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(50)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(50)),
                               border: Border.all(color: Colors.white, width: 1),
                             ),
-                            child: Icon(
-                              Icons.favorite,
-                              color: Colors.white,
-                              size: 50.0,
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          Center(
-                            child: Text(
-                              "Next: ${format(
-                                  Duration(seconds: currentHeartTime))}",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 20),
+                            child: Padding(
+                              padding: EdgeInsets.all(15.0),
+                              child: Icon(
+                                Icons.leaderboard,
+                                color: Colors.white,
+                                size: 50.0,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
+                    canClaimHeart ?
+                        PulsingWidget(child:
+                    BouncingWidget(
+                      duration: Duration(milliseconds: 30),
+                      scaleFactor: 1.5,
+                      onPressed: () {
+                        claimHeart();
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 80.0,
+                            width: 80.0,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(50)),
+                              border: Border.all(color: Colors.white, width: 1),
+                            ),
+                            child: Stack(
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.white,
+                                    size: 50.0,
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "$remainingLives",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 7.5),
+                          Center(
+                            child: Text(
+                              "CLAIM",
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),)
+                    : BouncingWidget(
+                      duration: Duration(milliseconds: 30),
+                      scaleFactor: 1.5,
+                      onPressed: () {
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 80.0,
+                            width: 80.0,
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(37, 38, 65, 0.7),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(50)),
+                              border: Border.all(color: Colors.white, width: 1),
+                            ),
+                            child: Stack(
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.white,
+                                    size: 50.0,
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "$remainingLives",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 7.5),
+                          Center(
+                            child: Text(
+                              "${format(Duration(seconds: currentHeartTime))}",
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.normal,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (!hasClaimedDailyReward)
+              Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(0, 35, 0, 0),
+                alignment: Alignment.center,
+                height: 150.0,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    HomeBottomCard(onTap: () { showDailyPrizeAd(); } ),
+                    //AllUsers(),
                   ],
                 ),
               ),
@@ -527,4 +510,102 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  Future<LocalUser> _getUser() async {
+    LocalUser user = LocalUser.fromMap((await FirebaseFirestore.instance
+            .collection(Keys.user)
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get())
+        .data()!);
+
+    setState(() {
+      debugPrint("REMAINING LIVES IS $remainingLives");
+      remainingLives = user.lives;
+    });
+
+    return user;
+  }
+
+  showDailyPrizeAd() {
+
+    debugPrint("DAILY PRICE TAPPED");
+    RewardedAd.load(
+        adUnitId: 'ca-app-pub-3042907838603854/8517770808',
+        request: AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (RewardedAd ad) {
+          print('$ad loaded.');
+          // Keep a reference to the ad so you can show it later.
+          this._rewardedAd = ad;
+          ad.show(onUserEarnedReward: (RewardedAd ad, RewardItem rewardItem) {
+            claimDailyPrizeAd();
+          });
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('RewardedAd failed to load: $error');
+        },
+    ));
+  }
+
+  claimDailyPrizeAd() async {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    var user = await _getUser();
+
+    await FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'bombs': user.bombs + 1});
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt(Keys.lastHeart, timestamp);
+    HapticFeedback.mediumImpact();
+    setState(() {
+      hasClaimedDailyReward = true;
+    });
+
+  }
+
+  checkHearts() async {
+    var prefResult = (await SharedPreferences.getInstance()).get(Keys.user);
+    final prefs = await SharedPreferences.getInstance();
+    int timeStamp = prefs.getInt(Keys.lastHeart) ?? 0;
+    if (timeStamp == 0) {
+      setState(() {
+        canClaimHeart = true;
+      });
+    } else {
+      DateTime before = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+      DateTime now = DateTime.now();
+      Duration timeDifference = now.difference(before);
+      int seconds = timeDifference.inSeconds;
+      setState(() {
+        if (seconds > 14400) {
+          canClaimHeart = true;
+        } else {
+          canClaimHeart = false;
+          countdownNextHeartController.setTimer(14400 - seconds);
+        }
+      });
+    }
+  }
+
+  claimHeart() async {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    var user = await _getUser();
+
+    await FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'lives': user.lives + 1});
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt(Keys.lastHeart, timestamp);
+    HapticFeedback.mediumImpact();
+    setState(() {
+      remainingLives = user.lives + 1;
+      canClaimHeart = false;
+      countdownNextHeartController.setTimer(14400);
+    });
+  }
+
 }

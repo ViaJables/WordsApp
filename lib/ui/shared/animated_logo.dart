@@ -4,7 +4,7 @@ class AnimatedLogo extends StatelessWidget {
   final double height;
 
   AnimatedLogo({
-    @required this.height,
+    required this.height,
   });
 
   @override
@@ -18,7 +18,10 @@ class AnimatedLogo extends StatelessWidget {
 class AnimatedLogoScreen extends StatefulWidget {
   final double height;
 
-  AnimatedLogoScreen({Key key, @required this.height}) : super(key: key);
+  AnimatedLogoScreen({
+    Key? key,
+    required this.height
+  }) : super(key: key);
 
   @override
   State createState() => AnimatedLogoScreenState();
@@ -26,10 +29,10 @@ class AnimatedLogoScreen extends StatefulWidget {
 
 class AnimatedLogoScreenState extends State<AnimatedLogoScreen>
     with TickerProviderStateMixin {
-  AnimationController animControlLogo;
-  double height;
+  late AnimationController animControlLogo;
+  double height = 0.0;
 
-  Animation sizeLogoL1, sizeLogoL2, fadeLogoL1, fadeLogoL2;
+  late Animation sizeLogoL1, sizeLogoL2, fadeLogoL1, fadeLogoL2;
 
   RectTween createRectTween(Rect begin, Rect end) {
     return new MaterialRectArcTween(begin: begin, end: end);

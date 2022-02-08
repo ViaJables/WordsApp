@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/res/keys.dart';
@@ -11,7 +10,9 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 class AddWord extends StatefulWidget {
   final Question question;
 
-  AddWord({this.question});
+  AddWord({
+    required this.question
+  });
 
   @override
   _AddWordState createState() => _AddWordState();
@@ -20,11 +21,11 @@ class AddWord extends StatefulWidget {
 class _AddWordState extends State<AddWord> {
   final _formKey = GlobalKey<FormState>();
 
-  int _optionIndex;
-  String _wordType;
+  int _optionIndex = 0;
+  String _wordType = "";
 
-  TextEditingController _wordController;
-  List<TextEditingController> _optionsControllers;
+  late TextEditingController _wordController;
+  late List<TextEditingController> _optionsControllers = [];
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _AddWordState extends State<AddWord> {
                           labelText: 'Enter Word',
                         ),
                         validator: (value) {
-                          if (value.isEmpty) return 'Enter word';
+                          if (value == null) return 'Enter word';
                           return null;
                         },
                       ),
@@ -99,7 +100,7 @@ class _AddWordState extends State<AddWord> {
                               groupValue: _wordType,
                               onChanged: (fl) {
                                 setState(() {
-                                  _wordType = fl;
+                                  _wordType = fl.toString();
                                 });
                               },
                             ),
@@ -111,7 +112,7 @@ class _AddWordState extends State<AddWord> {
                               groupValue: _wordType,
                               onChanged: (fl) {
                                 setState(() {
-                                  _wordType = fl;
+                                  _wordType = fl.toString();
                                 });
                               },
                             ),
@@ -182,7 +183,7 @@ class _AddWordState extends State<AddWord> {
           labelText: label,
         ),
         validator: (value) {
-          if (value.isEmpty) return 'Enter $label';
+          if (value == null) return 'Enter $label';
           return null;
         },
       ),
@@ -190,7 +191,7 @@ class _AddWordState extends State<AddWord> {
       groupValue: _optionIndex,
       onChanged: (fl) {
         setState(() {
-          _optionIndex = fl;
+          _optionIndex = fl as int;
         });
       },
     );
@@ -199,7 +200,7 @@ class _AddWordState extends State<AddWord> {
   _createWord() async {
     FocusScope.of(context).requestFocus(FocusNode());
 
-    if (!_formKey.currentState.validate())
+    if (!_formKey.currentState!.validate())
       return;
     else if (_wordType == null) {
       Fluttertoast.showToast(msg: 'Choose one: Synonym/Antonym');
@@ -209,9 +210,9 @@ class _AddWordState extends State<AddWord> {
       return;
     }
 
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Please wait...');
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(message: 'Please wait...');
+    // dialog.show();
 
     try {
       var answers = List.generate(4, (i) => _optionsControllers[i].text);
@@ -235,11 +236,11 @@ class _AddWordState extends State<AddWord> {
             .doc(question.id)
             .update(question.toMap());
 
-      dialog.hide();
+      //dialog.hide();
       Navigator.pop(context);
     } catch (e) {
       print(e);
-      dialog.hide();
+      //dialog.hide();
       Fluttertoast.showToast(msg: 'error in adding question');
     }
   }
@@ -277,9 +278,9 @@ class _AddWordState extends State<AddWord> {
     //   return;
     // }
 
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Please wait...');
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(message: 'Please wait...');
+    // dialog.show();
 
     var questions = [];
 
@@ -291,7 +292,7 @@ class _AddWordState extends State<AddWord> {
     //var decoder = SpreadsheetDecoder.decodeBytes(bytes);
     var table = decoder.tables['Synonyms'];
     print("Got a table");
-    for (var row in table.rows) {
+    for (var row in table!.rows) {
       print("First column: ${row[0]}");
       print("Second column: ${row[1]}");
       var word = row[0];
@@ -315,7 +316,7 @@ class _AddWordState extends State<AddWord> {
           .doc(question.id)
           .set(question.toMap());
 
-    dialog.hide();
+    //dialog.hide();
 
     Navigator.pop(context);
   }

@@ -3,7 +3,10 @@ import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/auth/login_start.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:synonym_app/ui/single_player/game_complete/progress_screen.dart';
-import 'package:countup/countup.dart';
+import 'package:synonym_app/ui/shared/countup.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:synonym_app/models/localuser.dart';
+import 'package:synonym_app/res/keys.dart';
 
 class RoundCompleted extends StatefulWidget {
   final String timedOrContinous;
@@ -13,11 +16,11 @@ class RoundCompleted extends StatefulWidget {
   final int remainingLives;
 
   const RoundCompleted({
-    @required this.timedOrContinous,
-    @required this.difficulty,
-    @required this.earnedXP,
-    @required this.streakXP,
-    @required this.remainingLives,
+    required this.timedOrContinous,
+    required this.difficulty,
+    required this.earnedXP,
+    required this.streakXP,
+    required this.remainingLives,
   });
 
   @override
@@ -327,15 +330,7 @@ class _RoundCompletedState extends State<RoundCompleted> {
                                     child: _tappableAnimatedContainer(
                                       'CONTINUE',
                                       Theme.of(context).secondaryHeaderColor,
-                                          () => Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) => ProgressScreen(
-                                                  timedOrContinous: widget.timedOrContinous,
-                                                difficulty: widget.difficulty,
-                                                totalXP: widget.streakXP + widget.earnedXP,
-                                              )),
-                                              (_) => false),
+                                          () => { continueTapped(context) }
                                     ),
                                   ),
                                   alignment: Alignment.centerLeft,
@@ -357,7 +352,46 @@ class _RoundCompletedState extends State<RoundCompleted> {
     );
   }
 
-  Widget _tappableAnimatedContainer(String txt, Color color, Function onTap) {
+  Future continueTapped(BuildContext context) async {
+    var user = await _getUser();
+    var lastXP = user.xpPoints;
+    var newXP = user.xpPoints + widget.earnedXP + widget.streakXP;
+
+    await FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'lives': widget.remainingLives, 'xpPoints': newXP});
+
+
+    var route = PageRouteBuilder(
+      pageBuilder: (c, a1, a2) => ProgressScreen(
+        timedOrContinous: widget.timedOrContinous,
+        difficulty: widget.difficulty,
+        totalXP: widget.streakXP + widget.earnedXP,
+        previousXP: lastXP,
+      ),
+      transitionsBuilder: (c, anim, a2, child) =>
+          FadeTransition(opacity: anim, child: child),
+      transitionDuration: Duration(milliseconds: 100),
+    );
+
+    Navigator.pushAndRemoveUntil(
+        context,
+        route,
+            (_) => false);
+
+  }
+
+  Future<LocalUser> _getUser() async {
+    LocalUser user = LocalUser.fromMap((await FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get())
+        .data()!);
+    return user;
+  }
+
+  Widget _tappableAnimatedContainer(String txt, Color color, Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

@@ -9,7 +9,7 @@ class WalkThroughPage extends StatefulWidget {
 }
 
 class _WalkThroughPageState extends State<WalkThroughPage> {
-  bool flag;
+  bool flag = false;
 
   PageController pageController = PageController(
     initialPage: 0,

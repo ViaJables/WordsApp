@@ -17,9 +17,9 @@ class MultiPlayerGame extends StatefulWidget {
   _MultiPlayerGameState createState() => _MultiPlayerGameState();
 }
 
-class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
-  GameInProgress _game;
-  Question _currentQuestion;
+class _MultiPlayerGameState extends State<MultiPlayerGame> {
+  late GameInProgress _game;
+  late Question _currentQuestion;
 
   var _subscription;
 
@@ -37,7 +37,7 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
         .doc(_game.id)
         .snapshots()
         .listen((val) {
-      _game = GameInProgress.fromMap(val.data());
+      _game = GameInProgress.fromMap(val.data() as Map<String, dynamic>);
 
       setState(() {
         _currentQuestion = _game.currentQuestion;
@@ -173,11 +173,11 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
       var wid = Expanded(
         child: Dismissible(
           key: Key('${_currentQuestion.id}/$i'),
-          direction: _game.turn == Keys.yourTurn
-              ? i % 2 == 0
-                  ? DismissDirection.startToEnd
-                  : DismissDirection.endToStart
-              : null,
+          //direction: _game.turn == Keys.yourTurn
+           //   ? i % 2 == 0
+            //      ? DismissDirection!.startToEnd
+            //      : DismissDirection!.endToStart
+            //  : null,
           onDismissed: _game.turn == Keys.yourTurn
               ? (dir) {
                   _handleSwipe(_currentQuestion.answers[i]);
@@ -263,8 +263,8 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
           .doc(id)
           .get();
 
-      if (opponentData.data()['remainingTurns'] == 0) {
-        await _finishGame(GameInProgress.fromMap(opponentData.data()));
+      if (opponentData.data()!['remainingTurns'] == 0) {
+        await _finishGame(GameInProgress.fromMap(opponentData.data() as Map<String, dynamic>));
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => GameResults(_game.id)));
         return;
@@ -338,7 +338,7 @@ class _MultiPlayerGameState extends State<MultiPlayerGame> with AfterInitMixin {
               .collection(Keys.user)
               .doc(_game.playingWith)
               .get())
-          .data()['name'],
+          .data()!['name'],
       correctAns: opponentGameData.correctAns,
       wrongAns: opponentGameData.wrongAns,
     );

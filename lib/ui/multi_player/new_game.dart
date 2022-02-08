@@ -18,7 +18,7 @@ class NewGame extends StatefulWidget {
 }
 
 class _NewGameState extends State<NewGame> {
-  bool _animFlag;
+  bool _animFlag = false;
 
   @override
   void initState() {

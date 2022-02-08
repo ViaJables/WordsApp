@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
-import 'package:synonym_app/ui/shared/animated_logo.dart';
+import 'package:synonym_app/ui/shared/animated_logo2.dart';
 import 'package:synonym_app/ui/auth/login.dart';
 import 'package:synonym_app/ui/auth/register.dart';
 
 class LoginStart extends StatefulWidget {
-  LoginStart({Key key}) : super(key: key);
+  const LoginStart({Key? key}) : super(key: key);
 
   @override
   _LoginStartState createState() => _LoginStartState();
@@ -38,8 +38,7 @@ class _LoginStartState extends State<LoginStart> {
                 Expanded(
                   child: Container(
                     alignment: Alignment.center,
-                    child: AnimatedLogo(
-                        height: MediaQuery.of(context).size.width * 0.8),
+                    child: AnimatedLogo2(),
                   ),
                 ),
                 Align(

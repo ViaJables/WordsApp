@@ -65,8 +65,8 @@ class AdminHome extends StatelessWidget {
 //            for(var item in FakeData.questions)
 //              await Firestore.instance.collection(Keys.questions).document(item.id).setData(item.toMap());
 
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => AddWord()));
+            //Navigator.of(context)
+              //  .push(MaterialPageRoute(builder: (_) => AddWord()));
           },
         ),
         body: Container(
@@ -106,11 +106,11 @@ class WordsList extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         return ListView.separated(
-          itemCount: snapshot.data.docs.length,
+          itemCount: snapshot.data!.docs.length,
           separatorBuilder: (_, i) => Divider(),
           itemBuilder: (_, index) {
             Question question =
-                Question.fromMap(snapshot.data.docs[index].data());
+                Question.fromMap(snapshot.data!.docs[index].data()  as Map<String, dynamic>);
 
             return ListTile(
               title: Text(question.word),

@@ -14,12 +14,14 @@ import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:synonym_app/ui/shared/grid.dart';
 import 'package:flutter/services.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:countup/countup.dart';
+import 'package:synonym_app/ui/shared/countup.dart';
 import 'package:outline_gradient_button/outline_gradient_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:synonym_app/helpers/auth_helper.dart';
 import 'package:synonym_app/models/localuser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bouncing_widget/bouncing_widget.dart';
+import 'package:synonym_app/ui/single_player/components/streak_bar.dart';
 
 class SinglePlayerGamePage extends StatefulWidget {
   final String gameType;
@@ -28,8 +30,8 @@ class SinglePlayerGamePage extends StatefulWidget {
   final String wordType;
 
   SinglePlayerGamePage({
-    @required this.gameType,
-    @required this.wordType,
+    required this.gameType,
+    required this.wordType,
     this.difficulty = Keys.medium,
     this.continuous = false,
   });
@@ -42,26 +44,27 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     with TickerProviderStateMixin<SinglePlayerGamePage> {
   bool loading = false;
 
-  Question _currentQuestion;
+  late Question? _currentQuestion = null;
+  var hasQuestion = false;
   List<String> usedquestionslist = [];
   List<String> answers = [];
   int _correctAnswers = 0, _wrongAnswers = 0;
   String answer = "";
-  int _currentTime, _pausedTime;
-  Timer t;
+  int _currentTime = 0, _pausedTime = 0;
+  late Timer t;
   String mix = 'synonym';
-  bool _animateFlag;
+  bool _animateFlag = false;
 
   // Timer tim.timevalue;
   List<Widget> output = [];
   Key x = UniqueKey();
-  double width;
-  int count;
+  double width = 0.0;
+  int count = 0;
   List<Question> questionsList = [];
   int index = -1;
-  LocalUser user;
+  late LocalUser user;
 
-  int a;
+  int a = 0;
   var tim, tim2;
   TimerController timeController = TimerController();
 
@@ -80,22 +83,24 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
     fetchStoredUser();
     fetchUser();
+    readQuestions();
     _animateFlag = false;
     print("Single player init called");
     _currentTime = 60;
+    timeController.setTimer(_currentTime);
 
     timeController.addListener(() {
       setState(() {
         _currentTime = timeController.timevalue;
 
         if (_currentTime < 1) {
-          completeRound(context);
+          completeRound();
         }
       });
     });
 
-    readquestions();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
       if (widget.difficulty == Keys.easy) {
         count = 2;
         width = MediaQuery.of(context).size.width / 1.33;
@@ -106,18 +111,8 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         count = 4;
         width = MediaQuery.of(context).size.width / 1.5;
       }
-      if (widget.continuous)
-        _currentTime = null;
-      else {
-        if (widget.gameType == Keys.puzzle)
-          _currentTime = 10;
-        else
-          _currentTime = 60;
-        if (_currentTime != null) {
-          print("Intro Pause");
-          timeController.setTimer(_currentTime);
-        }
-      }
+
+
     });
   }
 
@@ -127,17 +122,23 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     });
   }
 
-  completeRound(BuildContext ctx) async {
-    Navigator.of(ctx).pushAndRemoveUntil(
-        MaterialPageRoute(
-            builder: (_) => RoundCompleted(
-              timedOrContinous: Keys.timed,
-              difficulty: widget.difficulty,
-              earnedXP: points.toInt(),
-              streakXP: streakPoints.toInt(),
-              remainingLives: remainingLives,
-            )),
-            (route) => false);
+  completeRound() async {
+    timeController.timer.cancel();
+    Navigator.pushAndRemoveUntil(
+      context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => RoundCompleted(
+            timedOrContinous: Keys.timed,
+            difficulty: widget.difficulty,
+            earnedXP: points.toInt(),
+            streakXP: streakPoints.toInt(),
+            remainingLives: remainingLives - 1,
+          ),
+          transitionsBuilder: (c, anim, a2, child) =>
+              FadeTransition(opacity: anim, child: child),
+          transitionDuration: Duration(milliseconds: 100),
+        ),
+            (_) => false);
   }
 
   @override
@@ -148,7 +149,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   @override
   Widget build(BuildContext context) {
-    if (_currentQuestion == null)
+    if (_currentQuestion == null || _currentQuestion!.id == "" || questionsList.length == 0)
       return Scaffold(
         backgroundColor: Color.fromRGBO(8, 8, 24, 1.0),
         body: Center(
@@ -198,8 +199,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    GestureDetector(
-                                      onTap: () => tappedBomb(),
+                            BouncingWidget(
+                            duration: Duration(milliseconds: 30),
+                              scaleFactor: 1.5,
+                              onPressed: () {  tappedBomb(); },
                                       child: Container(
                                         height: 90.0,
                                         width: 90.0,
@@ -256,8 +259,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                         ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () => tappedClock(),
+                            BouncingWidget(
+                                duration: Duration(milliseconds: 30),
+                                scaleFactor: 1.5,
+                                onPressed: () {  tappedClock(); },
                                       child: Container(
                                         height: 90.0,
                                         width: 90.0,
@@ -314,8 +319,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                         ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () => tappedHourglass(),
+                BouncingWidget(
+                    duration: Duration(milliseconds: 30),
+                    scaleFactor: 1.5,
+                    onPressed: () {  tappedHourglass(); },
                                       child: Container(
                                         height: 90.0,
                                         width: 90.0,
@@ -409,27 +416,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                       radius: Radius.circular(26),
                                     ),
                                     SizedBox(width: 5),
-                                    Expanded(
-                                      child: Container(
-                                        height: 50.0,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(37, 38, 65, 0.7),
-                                          boxShadow: [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 5)
-                                          ],
-                                          border: Border.all(
-                                              color: Colors.white.withOpacity(0.3),
-                                              width: 3),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(25)),
-                                        ),
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 15),
-                                      ),
-                                    ),
+                                    StreakBar(),
                                   ],
                                 ),
                               ],
@@ -491,9 +478,9 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                             ),
                             SizedBox(height: 20.0),
                             Text(
-                              _currentQuestion.synonymOrAntonym,
+                              _currentQuestion!.synonymOrAntonym,
                               style: TextStyle(
-                                color: _currentQuestion.synonymOrAntonym ==
+                                color: _currentQuestion!.synonymOrAntonym ==
                                         "synonym"
                                     ? Theme.of(context).secondaryHeaderColor
                                     : Theme.of(context).primaryColor,
@@ -502,7 +489,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                               ),
                             ),
                             Text(
-                              _currentQuestion.word,
+                              _currentQuestion!.word,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize:
@@ -520,28 +507,26 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                         ? Center(
                                             child: CircularProgressIndicator())
                                         : ListView.builder(
-                                            itemCount: count,
+                                            itemCount: count >= answers.length ? answers.length : count,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
                                               return Container(
+                                                height: MediaQuery.of(context).size.height * 0.09,
                                                 padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 30),
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(15),
-                                                  child: _tappableAnimatedContainer(
+                                                    const EdgeInsets.only(
+                                                        left: 30, right: 30, bottom: 15),
+                                                child: _tappableAnimatedContainer(
                                                       answers[index]
                                                           .toUpperCase(),
                                                       index % 2 == 0,
-                                                      _currentQuestion
+                                                      _currentQuestion!
                                                               .synonymOrAntonym ==
                                                           "synonym", () {
                                                     _animateFlag = false;
                                                     answerQuestion(index);
-                                                    HapticFeedback
-                                                        .lightImpact();
+
                                                   }),
-                                                ),
+
                                               );
                                             }),
                                   ],
@@ -608,9 +593,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   }
 
   Widget _tappableAnimatedContainer(
-      String txt, bool left, bool synonym, Function onTap) {
-    return GestureDetector(
-      onTap: onTap,
+      String txt, bool left, bool synonym, Function()? onTap) {
+    return BouncingWidget(
+        duration: Duration(milliseconds: 30),
+        scaleFactor: 1.5,
+        onPressed: onTap!,
       child: AnimatedContainer(
         duration: Keys.playAnimDuration,
         padding: EdgeInsets.all(15.0),
@@ -649,17 +636,17 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     FirebaseFirestore.instance
         .collection("users")
         .doc(Constants.useruid)
-        .collection(_currentQuestion.synonymOrAntonym)
-        .doc(_currentQuestion.id)
+        .collection(_currentQuestion!.synonymOrAntonym)
+        .doc(_currentQuestion!.id)
         .set({
-      'question': _currentQuestion.word,
+      'question': _currentQuestion!.word,
       'answergiven': answers[index],
-      'correctanswer': _currentQuestion.answers[_currentQuestion.correctAnswer],
-      'qid': _currentQuestion.id
+      'correctanswer': _currentQuestion!.answers[_currentQuestion!.correctAnswer],
+      'qid': _currentQuestion!.id
     });
 
     if (answers[index] ==
-        _currentQuestion.answers[_currentQuestion.correctAnswer]) {
+        _currentQuestion!.answers[_currentQuestion!.correctAnswer]) {
       _correctAnswers++;
 
       // AssetsAudioPlayer.newPlayer().open(
@@ -673,6 +660,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       setState(() {
         points += 100.0;
         answer = "correct";
+        HapticFeedback.mediumImpact();
       });
       await Future.delayed(Duration(milliseconds: 700), () {
         setState(() {
@@ -690,11 +678,12 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       _wrongAnswers++;
       setState(() {
         answer = "wrong";
+        HapticFeedback.lightImpact();
       });
     }
     if (widget.gameType == Keys.puzzle && !widget.continuous) {
       if (answers[index] ==
-          _currentQuestion.answers[_currentQuestion.correctAnswer]) {
+          _currentQuestion!.answers[_currentQuestion!.correctAnswer]) {
         _currentTime += 10;
       } else {
         _currentTime = 10;
@@ -702,34 +691,25 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     }
     if (widget.continuous && _wrongAnswers == 1) {
       print("HERE 1");
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) => RoundCompleted(
-                    timedOrContinous: Keys.timed,
-                    difficulty: widget.difficulty,
-                    earnedXP: points.toInt(),
-                    streakXP: streakPoints.toInt(),
-                    remainingLives: remainingLives,
-                  )));
+      completeRound();
       return;
     }
     await Future.delayed(Duration(milliseconds: 400), () {
       setState(() {
-        print("Set state 2");
         answer = "";
       });
 
       _animateFlag = true;
       // setState(() {});
     });
+
     await _pickQuestion();
   }
 
   fetchStoredUser() async {
     var prefResult = (await SharedPreferences.getInstance()).get(Keys.user);
 
-    user = LocalUser.fromMap(json.decode(prefResult));
+    user = LocalUser.fromMap(json.decode(prefResult as String));
     setState(() {
       remainingLives = user.lives == null ? 3 : user.lives;
       remainingBombs = user.bombs == null ? 5 : user.bombs;
@@ -740,65 +720,48 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   fetchUser() async {
     debugPrint("Fetching user");
-    user = await AuthHelper().getRemoteUser(context);
+    var u =  await AuthHelper().getRemoteUser(context);
+    user = u!;
     debugPrint('Got ${user.email}');
     setState(() {
       debugPrint('Lives ${user.lives}');
-      remainingLives = user.lives == null ? 3 : user.lives;
-      remainingBombs = user.bombs == null ? 5 : user.bombs;
-      remainingClocks = user.clocks == null ? 5 : user.clocks;
-      remainingHourglasses = user.hourglasses == null ? 5 : user.hourglasses;
+      remainingLives = user.lives = user.lives;
+      remainingBombs = user.bombs = user.bombs;
+      remainingClocks = user.clocks = user.clocks;
+      remainingHourglasses = user.hourglasses = user.hourglasses;
     });
   }
 
   _pickQuestion() async {
-    if (widget.wordType != null)
+    if (widget.wordType != "")
       index++;
     else {
       if (index == questionsList.length - 1) index = 0;
       index++;
     }
     if (index == questionsList.length) {
-      print("HERE 3");
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) => RoundCompleted(
-                    timedOrContinous: Keys.timed,
-                    difficulty: widget.difficulty,
-                    earnedXP: points.toInt(),
-                    streakXP: streakPoints.toInt(),
-                    remainingLives: remainingLives,
-                  )));
+
+     completeRound();
     }
     var ques = questionsList[index];
-    print("QUESTION");
     print(ques.answers);
-    if (widget.wordType != null) {
+    if (widget.wordType != Keys.allwords) {
       if (ques.synonymOrAntonym == widget.wordType &&
           !usedquestionslist.contains(ques.id)) {
         _currentQuestion = ques;
+        hasQuestion = true;
         prepareAnswers();
         usedquestionslist.add(ques.id);
       } else
         _pickQuestion();
     } else {
       if (usedquestionslist.length == questionsList.length) {
-        print("HERE 5");
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (_) => RoundCompleted(
-                      timedOrContinous: Keys.timed,
-                      difficulty: widget.difficulty,
-                      earnedXP: points.toInt(),
-                      streakXP: streakPoints.toInt(),
-                      remainingLives: remainingLives,
-                    )));
+      completeRound();
       } else {
         if (!usedquestionslist.contains(ques.id)) {
           if (ques.synonymOrAntonym == mix.toString()) {
             _currentQuestion = ques;
+            hasQuestion = true;
             prepareAnswers();
             usedquestionslist.add(ques.id);
             if (mix == 'synonym')
@@ -823,16 +786,17 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   }
 
   prepareAnswers() {
-    if (_currentQuestion.answers.length > count) {
+    if (_currentQuestion!.answers.length >= count) {
       answers.clear();
       var correctAnswer =
-          _currentQuestion.answers[_currentQuestion.correctAnswer];
+          _currentQuestion!.answers[_currentQuestion!.correctAnswer];
       answers.add(correctAnswer);
 
-      for (var i = 0; i < _currentQuestion.answers.length; i++) {
-        var element = _currentQuestion.answers[i];
+      for (var i = 0; i < _currentQuestion!.answers.length; i++) {
+        var element = _currentQuestion!.answers[i];
         if (answers.length < count) {
           if (element != correctAnswer) {
+
             answers.add(element);
           }
         }
@@ -840,22 +804,21 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     }
   }
 
-  _pause() async {
+  pause() async {
     print("Pausing");
-    if (_currentTime != null) {
-      _pausedTime = _currentTime;
-      timeController.timer.cancel();
-    }
+    _pausedTime = _currentTime;
+    timeController.timer.cancel();
+
     var reset = await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (_) => PauseScreen(
-                _currentQuestion.synonymOrAntonym == Keys.synonym
+                _currentQuestion!.synonymOrAntonym == Keys.synonym
                     ? Theme.of(context).primaryColor
                     : Theme.of(context).primaryColorDark)));
     if (_pausedTime != null) {
       _currentTime = _pausedTime;
-      _pausedTime = null;
+      _pausedTime = 0;
       //_initTimer();
     }
     if (reset == true) {
@@ -924,7 +887,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
     if (!result) {
       _currentTime = _pausedTime;
-      _pausedTime = null;
+      _pausedTime = 0;
       // _initTimer();
       return false;
     } else {
@@ -933,17 +896,18 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     }
   }
 
-  void readquestions() {
+  readQuestions() async {
     FirebaseFirestore.instance.collection("questions").get().then((value) {
       value.docs.forEach((element) {
         if (widget.wordType == element.data()['synonymOrAntonym']) {
           questionsList.add(Question.fromMap(element.data()));
         }
-        if (widget.wordType == null)
+        if (widget.wordType == Keys.allwords)
           questionsList.add(Question.fromMap(element.data()));
       });
 
       questionsList.shuffle();
+      debugPrint("Pick question 2");
       _pickQuestion();
       print(questionsList);
     });
@@ -954,6 +918,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   // Pause for 5 seconds
   tappedHourglass() {
+    if (user.hourglasses == 0) {
+      HapticFeedback.heavyImpact();
+      return;
+    }
+
     AssetsAudioPlayer.newPlayer().open(
       Audio("assets/pause.wav"),
       autoStart: true,
@@ -962,11 +931,25 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
     HapticFeedback.lightImpact();
     timeController.pauseValue += 5;
+    user.hourglasses -= 1;
+    setState(() {
+      remainingHourglasses = user.hourglasses;
+    });
+
+    FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'hourglasses': user.hourglasses});
+
   }
 
   // Extra 5 seconds
   tappedClock() {
-    timeController.timevalue += 5;
+    if (user.clocks == 0) {
+      HapticFeedback.heavyImpact();
+      return;
+    }
+
     AssetsAudioPlayer.newPlayer().open(
       Audio("assets/clock.wav"),
       autoStart: true,
@@ -974,9 +957,25 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     );
 
     HapticFeedback.lightImpact();
+
+    timeController.timevalue += 5;
+    user.clocks -= 1;
+    setState(() {
+      remainingClocks = user.clocks;
+    });
+
+    FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'clocks': user.clocks});
   }
 
   tappedBomb() {
+    if (user.bombs == 0) {
+      HapticFeedback.heavyImpact();
+      return;
+    }
+
     print("Tapped bomb");
     AssetsAudioPlayer.newPlayer().open(
       Audio("assets/bomb.wav"),
@@ -985,6 +984,20 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     );
 
     HapticFeedback.lightImpact();
+
+    user.bombs -= 1;
+    debugPrint("COUNT IS $count");
+
+
+    setState(() {
+      remainingBombs = user.bombs;
+      count = count - 1;
+    });
+
+    FirebaseFirestore.instance
+        .collection(Keys.user)
+        .doc(user.uid)
+        .update({'bombs': user.bombs});
 
   }
 

@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:synonym_app/ui/common_widgets/banner-ad_box.dart';
 
 class PageBackground extends StatelessWidget {
-  final GlobalKey scaffoldKey;
+  final GlobalKey? scaffoldKey;
 
   final String title, subtitle;
   final Color appBarColor;
-  final Widget child, trailing, leading;
-  final Function trailingTap, leadingTap;
+  final Widget child;
+  final Widget? trailing, leading;
+  final Function()? trailingTap, leadingTap;
 
   PageBackground({
-    @required this.title,
-    @required this.appBarColor,
-    @required this.child,
+    required this.title,
+    required this.appBarColor,
+    required this.child,
     this.scaffoldKey,
-    this.subtitle,
+    this.subtitle = "",
     this.leading,
     this.trailing,
     this.trailingTap,
@@ -39,7 +40,7 @@ class PageBackground extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       IconButton(
-                        icon: leading == null ? Container() : leading,
+                        icon: leading == null ? Container() : leading!,
                         iconSize: 50,
                         onPressed: leadingTap,
                       ),
@@ -66,7 +67,7 @@ class PageBackground extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        icon: trailing == null ? Container() : trailing,
+                        icon: trailing == null ? Container() : trailing!,
                         iconSize: 50,
                         color: Colors.black,
                         onPressed: trailingTap,

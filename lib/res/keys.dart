@@ -12,6 +12,7 @@ class Keys
 
   static const String synonym = 'synonym';
   static const String antonym = 'antonym';
+  static const String allwords = 'allwords';
 
   static const String timed = 'Timed';
   static const String puzzle = 'puzzle';
@@ -40,6 +41,7 @@ class Keys
   static const String opponentsTurn = 'opponents_trun';
   static const String endGame = 'end_game';
 
+  static const String lastHeart = '';
 
 }
 

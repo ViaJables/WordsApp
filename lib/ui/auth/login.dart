@@ -7,7 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -23,7 +22,7 @@ import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
-  Login({Key key}) : super(key: key);
+  Login({Key? key}) : super(key: key);
 
   @override
   _LoginState createState() => _LoginState();
@@ -180,16 +179,16 @@ class _LoginState extends State<Login> {
 
 
   fbAuth(String email, String name, String id, String token) async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
     try {
       final facebookAuthCred = FacebookAuthProvider.credential(token);
       final fbUser =
           await FirebaseAuth.instance.signInWithCredential(facebookAuthCred);
-      String fbUid = fbUser.user.uid;
+      String fbUid = fbUser.user!.uid;
 
       await http.get(Uri.https(
           'jsonplaceholder.typicode.com',
@@ -219,7 +218,7 @@ class _LoginState extends State<Login> {
       Provider.of<LocalUser>(context, listen: false).email = user.email;
       Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
-      dialog.hide();
+      //dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
@@ -238,18 +237,18 @@ class _LoginState extends State<Login> {
 
   // ------------------- Google Login Start ------------------ //
   signInWithGoogle() async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
     try {
-      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       print('1');
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+          await googleUser!.authentication;
       print('2');
 
       final credential = GoogleAuthProvider.credential(
@@ -260,7 +259,7 @@ class _LoginState extends State<Login> {
       UserCredential authResult =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      List<String> bigPic = authResult.user.photoURL.split('=');
+      List<String> bigPic = authResult.user!.photoURL!.split('=');
       await http.get(
         Uri.https('jsonplaceholder.typicode.com', '${bigPic[0]}'),
       );
@@ -270,12 +269,12 @@ class _LoginState extends State<Login> {
       var storageReference = FirebaseStorage.instance.ref().child(imageName);
       //final uploadTask = storageReference.putData(googleImage);
       String imgUrlLink = await storageReference.getDownloadURL();
-      String userName = authResult.user.displayName.replaceAll(' ', '');
-      String userUid = authResult.user.uid;
+      String userName = authResult.user!.displayName!.replaceAll(' ', '');
+      String userUid = authResult.user!.uid;
       LocalUser user = LocalUser(
         uid: userUid,
-        name: authResult.user.displayName,
-        email: authResult.user.email,
+        name: authResult.user!.displayName ?? "",
+        email: authResult.user!.email ?? "",
         image: imgUrlLink,
         userName: userName,
       );
@@ -291,14 +290,14 @@ class _LoginState extends State<Login> {
       Provider.of<LocalUser>(context, listen: false).email = user.email;
       Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
-      dialog.hide();
+      //dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
       print(e);
       if (e.toString().contains('was called on null')) {
         print('Cancelled');
-        dialog.hide();
+        //dialog.hide();
       }
     }
   }
@@ -324,12 +323,12 @@ class _LoginState extends State<Login> {
   signInWithApple() async {
     final rawNonce = generateNonce();
     final nonce = sha256ofString(rawNonce);
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
     // Request credential for the currently signed in Apple account.
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
@@ -348,11 +347,11 @@ class _LoginState extends State<Login> {
 
       UserCredential authResult =
           await FirebaseAuth.instance.signInWithCredential(oauthCredential);
-      String userUid = authResult.user.uid;
+      String userUid = authResult.user!.uid;
       String name =
           '${appleCredential.givenName} ${appleCredential.familyName}';
       String userName = name.replaceAll(' ', '');
-      String email = appleCredential.email;
+      String email = appleCredential.email ?? "";
 
       LocalUser user = LocalUser(
         uid: userUid,
@@ -373,12 +372,12 @@ class _LoginState extends State<Login> {
       Provider.of<LocalUser>(context, listen: false).email = user.email;
       Provider.of<LocalUser>(context, listen: false).image = user.image;
       print('All Done');
-      dialog.hide();
+      //dialog.hide();
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => Home()), (route) => false);
     } catch (e) {
       if (e.toString().contains('canceled')) {
-        dialog.hide();
+        //dialog.hide();
       }
     }
   }
@@ -396,12 +395,12 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
 
     if (email == 'admin') {
       email += '@admin.com';
@@ -410,7 +409,7 @@ class _LoginState extends State<Login> {
     AuthHelper helper = AuthHelper();
     String result = await helper.login(context, email, password);
 
-    dialog.hide();
+    //dialog.hide();
 
     if (result == null) {
       var page;

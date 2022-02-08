@@ -1,7 +1,12 @@
 class HistoryItem {
   String question, answergiven, correctanswer, qid;
 
-  HistoryItem({this.question, this.answergiven, this.correctanswer, this.qid});
+  HistoryItem({
+    this.question = "",
+    this.answergiven = "",
+    this.correctanswer = "",
+    this.qid = ""
+  });
 
   factory HistoryItem.fromMap(Map<String, dynamic> map) {
     return new HistoryItem(

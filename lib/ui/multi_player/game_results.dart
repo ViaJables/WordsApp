@@ -74,7 +74,7 @@ class _GameResultsState extends State<GameResults> {
                         ),
                       );
                     CompletedGame game =
-                        CompletedGame.fromMap(snapshot.data.data());
+                        CompletedGame.fromMap(snapshot.data!.data() as Map<String, dynamic>);
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -89,7 +89,7 @@ class _GameResultsState extends State<GameResults> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _scoreRow(
-                                null,
+                                "",
                                 game.userAResult.name,
                                 game.userBResult.name,
                               ),

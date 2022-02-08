@@ -21,7 +21,7 @@ class IntroScreen extends StatelessWidget {
 class IntroAnimationScreen extends StatefulWidget {
   final Size screenSize;
 
-  IntroAnimationScreen({Key key, @required this.screenSize}) : super(key: key);
+  IntroAnimationScreen({Key? key, required this.screenSize}) : super(key: key);
 
   @override
   State createState() => IntroScreenState();
@@ -33,9 +33,9 @@ class IntroScreenState extends State<IntroAnimationScreen>
   static const double kMaxRadius = 128.0;
   static const double durationSlowMode = 2.0;
 
-  AnimationController animControlStartButton;
-  Animation fadeStartButton;
-  Size screenSize;
+  late AnimationController animControlStartButton;
+  late Animation fadeStartButton;
+  late Size screenSize;
 
   RectTween createRectTween(Rect begin, Rect end) {
     return new MaterialRectArcTween(begin: begin, end: end);
@@ -157,9 +157,9 @@ class IntroScreenState extends State<IntroAnimationScreen>
 
 class RadialExpansion extends StatelessWidget {
   RadialExpansion({
-    Key key,
-    this.maxRadius,
-    this.child,
+    Key? key,
+    required this.maxRadius,
+    required this.child,
   })  : clipRectSize = 2.0 * (maxRadius / sqrt2),
         super(key: key);
 
@@ -180,7 +180,7 @@ class RadialExpansion extends StatelessWidget {
 }
 
 class Photo extends StatelessWidget {
-  Photo({Key key, this.photo, this.color, this.onTap}) : super(key: key);
+  Photo({Key? key, required this.photo, required this.color, required this.onTap}) : super(key: key);
 
   final String photo;
   final Color color;
@@ -213,9 +213,9 @@ class Star {
   int typeFade;
 
   Star(
-      {@required this.left,
-      @required this.top,
-      @required this.extraSize,
-      @required this.angle,
-      @required this.typeFade});
+      {required this.left,
+      required this.top,
+      required this.extraSize,
+      required this.angle,
+      required this.typeFade});
 }

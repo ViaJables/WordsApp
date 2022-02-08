@@ -28,7 +28,7 @@ class AuthHelper {
           Provider.of<LocalUser>(context, listen: false).image = user.image;
         }
 
-        return null;
+        return 'done';
       }
     } catch (e) {
       return e.toString();
@@ -41,8 +41,8 @@ class AuthHelper {
       var result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: user.email, password: password);
       if (result.user == null) return 'error';
-      user.uid = result.user.uid;
-      Constants.useruid = result.user.uid;
+      user.uid = result.user!.uid;
+      Constants.useruid = result.user!.uid;
       await FirebaseFirestore.instance
           .collection(Keys.user)
           .doc(user.uid)
@@ -52,9 +52,9 @@ class AuthHelper {
       Provider.of<LocalUser>(context, listen: false).name = user.name;
       Provider.of<LocalUser>(context, listen: false).email = user.email;
       Provider.of<LocalUser>(context, listen: false).image = user.image;
-      return null;
+      return 'done';
     } catch (e) {
-      return e.code;
+      return e.toString();
     }
   }
 
@@ -68,6 +68,7 @@ class AuthHelper {
         uid: Provider.of<LocalUser>(context).uid,
         name: Provider.of<LocalUser>(context).name,
         email: Provider.of<LocalUser>(context).email,
+        userName: Provider.of<LocalUser>(context).userName,
         image: image,
         // UserName:username
       );
@@ -98,7 +99,9 @@ class AuthHelper {
       LocalUser user = LocalUser(
           uid: Provider.of<LocalUser>(context).uid,
           name: Provider.of<LocalUser>(context).name,
-          email: Provider.of<LocalUser>(context).email);
+          email: Provider.of<LocalUser>(context).email,
+        userName: Provider.of<LocalUser>(context).userName
+      );
 
       await FirebaseFirestore.instance
           .collection(Keys.user)
@@ -127,7 +130,7 @@ class AuthHelper {
     }
   }
 
-  Future<LocalUser> getCurrentUser(BuildContext context) async {
+  Future<LocalUser?> getCurrentUser(BuildContext context) async {
     try {
       var fUser = FirebaseAuth.instance.currentUser;
       if (fUser == null) return null;
@@ -140,10 +143,10 @@ class AuthHelper {
                 .collection(Keys.user)
                 .doc(fUser.uid)
                 .get())
-            .data());
+            .data()!);
         _saveUser(currentUser);
       } else
-        currentUser = LocalUser.fromMap(json.decode(prefResult));
+        currentUser = LocalUser.fromMap(json.decode(prefResult as String));
 
       Provider.of<LocalUser>(context, listen: false).uid = currentUser.uid;
       Provider.of<LocalUser>(context, listen: false).name = currentUser.name;
@@ -156,7 +159,7 @@ class AuthHelper {
     }
   }
 
-  Future<LocalUser> getRemoteUser(BuildContext context) async {
+  Future<LocalUser?> getRemoteUser(BuildContext context) async {
     try {
       var fUser = FirebaseAuth.instance.currentUser;
       if (fUser == null) return null;
@@ -168,7 +171,7 @@ class AuthHelper {
             .collection(Keys.user)
             .doc(fUser.uid)
             .get())
-            .data());
+            .data()!);
       _saveUser(currentUser);
       Provider.of<LocalUser>(context, listen: false).uid = currentUser.uid;
       Provider.of<LocalUser>(context, listen: false).name = currentUser.name;
@@ -177,6 +180,7 @@ class AuthHelper {
 
       return currentUser;
     } catch (e) {
+      debugPrint("Error fetching user: $e");
       return null;
     }
   }
@@ -196,12 +200,12 @@ class AuthHelper {
     if (prefResult == null) {
       LocalUser user = LocalUser.fromMap((await FirebaseFirestore.instance
               .collection(Keys.user)
-              .doc(FirebaseAuth.instance.currentUser.uid)
+              .doc(FirebaseAuth.instance.currentUser!.uid)
               .get())
-          .data());
+          .data()!);
       _saveUser(user);
       return user;
     } else
-      return LocalUser.fromMap(json.decode(prefResult));
+      return LocalUser.fromMap(json.decode(prefResult as String));
   }
 }

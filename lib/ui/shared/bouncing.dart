@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class Bouncing extends StatefulWidget {
   final Widget child;
-  final VoidCallback onPress;
+  final VoidCallback? onPress;
 
-  Bouncing({@required this.child, Key key, this.onPress})
+  Bouncing({required this.child, Key? key, this.onPress})
       : assert(child != null),
         super(key: key);
 
@@ -14,8 +14,8 @@ class Bouncing extends StatefulWidget {
 
 class _BouncingState extends State<Bouncing>
     with SingleTickerProviderStateMixin {
-  double _scale;
-  AnimationController _controller;
+  double _scale = 0.0;
+  late AnimationController _controller;
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _BouncingState extends State<Bouncing>
       onPointerUp: (PointerUpEvent event) {
         if (widget.onPress != null) {
           _controller.reverse();
-          widget.onPress();
+          widget.onPress!();
         }
       },
       child: Transform.scale(

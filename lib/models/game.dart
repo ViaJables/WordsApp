@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+
 import 'package:synonym_app/models/question.dart';
 import 'package:synonym_app/models/result.dart';
 
@@ -8,13 +8,13 @@ class GameInProgress {
   int remainingTurns, correctAns, wrongAns;
 
   GameInProgress({
-    @required this.id,
-    @required this.playingWith,
-    @required this.turn,
-    @required this.remainingTurns,
-    @required this.correctAns,
-    @required this.wrongAns,
-    @required this.currentQuestion,
+    required this.id,
+    required this.playingWith,
+    required this.turn,
+    required this.remainingTurns,
+    required this.correctAns,
+    required this.wrongAns,
+    required this.currentQuestion,
   });
 
   Map<String, dynamic> toMap() {
@@ -52,11 +52,11 @@ class CompletedGame {
   Result userAResult, userBResult;
 
   CompletedGame({
-    @required this.userAUid,
-    @required this.userBUid,
-    @required this.winnerUid,
-    @required this.userAResult,
-    @required this.userBResult,
+    required this.userAUid,
+    required this.userBUid,
+    required this.winnerUid,
+    required this.userAResult,
+    required this.userBResult,
   });
 
   Map<String, dynamic> toMap() {

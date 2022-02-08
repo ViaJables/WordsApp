@@ -8,9 +8,9 @@ class ExpansionTileBackground extends StatelessWidget {
   final Color color;
 
   ExpansionTileBackground({
-    @required this.title,
-    @required this.children,
-    @required this.color,
+    required this.title,
+    required this.children,
+    required this.color,
   });
 
   @override
@@ -66,12 +66,12 @@ class ExpansionTileBackground extends StatelessWidget {
 class ExpansionTileItem extends StatelessWidget {
   final String txt;
   final Color backgroundColor;
-  final Function onTap;
+  final Function()? onTap;
 
   ExpansionTileItem({
-    @required this.txt,
-    @required this.backgroundColor,
-    @required this.onTap,
+    required this.txt,
+    required this.backgroundColor,
+    required this.onTap,
   });
 
   @override

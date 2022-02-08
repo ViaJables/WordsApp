@@ -15,7 +15,7 @@ class PauseScreen extends StatefulWidget {
 class _PauseScreenState extends State<PauseScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  bool _animateFlag;
+  bool _animateFlag = false;
 
   @override
   void initState() {
@@ -120,7 +120,7 @@ class _PauseScreenState extends State<PauseScreen> {
     );
   }
 
-  Widget _tappableAnimatedContainer(String txt, Color color, Function onTap) {
+  Widget _tappableAnimatedContainer(String txt, Color color, Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

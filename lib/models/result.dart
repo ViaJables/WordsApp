@@ -1,14 +1,12 @@
-import 'package:flutter/foundation.dart';
-
 class Result {
   String uid, name;
   int correctAns, wrongAns;
 
   Result({
-    @required this.uid,
-    @required this.name,
-    @required this.correctAns,
-    @required this.wrongAns,
+    required this.uid,
+    required this.name,
+    required this.correctAns,
+    required this.wrongAns,
   });
 
   Map<String, dynamic> toMap() {

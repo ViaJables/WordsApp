@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:synonym_app/models/game.dart';
 import 'package:synonym_app/models/question.dart';
@@ -12,25 +11,23 @@ import 'package:synonym_app/ui/multi_player/new_game.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AllUsers extends StatefulWidget {
-  AllUsers({Key key}) : super(key: key);
+  const AllUsers({Key? key}) : super(key: key);
 
   @override
   _AllUsersState createState() => _AllUsersState();
 }
 
-class _AllUsersState extends State<AllUsers> with AfterInitMixin {
+class _AllUsersState extends State<AllUsers> {
 //  var _decoration;
   var _inputBorder;
 
-  TextEditingController _searchCon;
+  TextEditingController _searchCon = TextEditingController();
 
   int pageIndex = 0;
 
   @override
   void initState() {
     super.initState();
-
-    _searchCon = TextEditingController();
 
     _inputBorder = OutlineInputBorder(
         borderSide: BorderSide(
@@ -140,8 +137,8 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
                 builder: (context, snapshot) {
                   List<LocalUser> usersList = [];
                   if (snapshot.data != null)
-                    for (var item in snapshot.data.docs) {
-                      var user = LocalUser.fromMap(item.data());
+                    for (var item in snapshot.data!.docs) {
+                      var user = LocalUser.fromMap(item.data() as Map<String, dynamic>);
 
                       print(Provider.of<LocalUser>(context).uid);
                       if (user.uid != Provider.of<LocalUser>(context).uid)
@@ -170,7 +167,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
 
                               var friends = [];
 
-                              for (var item in snapshot.data.docs) {
+                              for (var item in snapshot.data!.docs) {
                                 var user = usersList
                                     .firstWhere((u) => u.uid == item.id);
                                 if (user != null) friends.add(user);
@@ -272,9 +269,9 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
   }
 
   _startGame(LocalUser user) async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Please wait...');
-    dialog.show();
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(message: 'Please wait...');
+    // dialog.show();
 
     var result = await FirebaseFirestore.instance
         .collection(Keys.user)
@@ -284,8 +281,8 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
         .get();
 
     if (result.docs.length != 0) {
-      dialog.hide();
-      FlutterToast.show('already playing with ${user.name}');
+      //dialog.hide();
+      Fluttertoast.showToast(msg: 'already playing with ${user.name}');
       return;
     }
 
@@ -336,7 +333,7 @@ class _AllUsersState extends State<AllUsers> with AfterInitMixin {
     game.turn = Keys.yourTurn;
     game.playingWith = user.uid;
 
-    dialog.hide();
+    //dialog.hide();
 
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (_) => NewGame(user, game)));

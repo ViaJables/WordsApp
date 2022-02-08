@@ -249,7 +249,7 @@ class _LeaderboardState extends State<Leaderboard> {
     );
   }
 
-  Widget _tappableAnimatedContainer(String txt, Color color, Function onTap) {
+  Widget _tappableAnimatedContainer(String txt, Color color, Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:synonym_app/ui/shared/progress_dialog.dart';
 import 'package:synonym_app/res/constants.dart';
 import 'package:synonym_app/ui/common_widgets/auth_text_field.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
@@ -18,8 +17,7 @@ class _EditAccountState extends State<EditAccount> {
   bool changed = false;
   TextEditingController name = new TextEditingController();
   String imgurl = "";
-  File imageFile;
-  File _image;
+  File? _image;
   final picker = ImagePicker();
 
   @override
@@ -122,8 +120,8 @@ class _EditAccountState extends State<EditAccount> {
         .get()
         .then((querySnapshot) {
       print(querySnapshot.data);
-      imgurl = querySnapshot.data()['image'];
-      name.text = querySnapshot.data()['UserName'];
+      imgurl = querySnapshot.data()!['image'];
+      name.text = querySnapshot.data()!['UserName'];
       setState(() {});
     });
   }
@@ -156,8 +154,8 @@ class _EditAccountState extends State<EditAccount> {
       setState(() {
         _image = croppedFile;
       });
+      await uploadimage(_image!);
     }
-    await uploadimage(_image);
   }
 
   selecttype(BuildContext context, String str) {
@@ -190,7 +188,7 @@ class _EditAccountState extends State<EditAccount> {
   Future getImage() async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
-
+      if (pickedFile == null) { return null; }
       await _cropImage(File(pickedFile.path));
     } catch (e) {
       print(e.toString());
@@ -199,10 +197,11 @@ class _EditAccountState extends State<EditAccount> {
 
   Future getgalleryimg() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile == null) { return null; }
     await _cropImage(File(pickedFile.path));
   }
 
-  Widget butt(Function ontap, String name) {
+  Widget butt(Function()? ontap, String name) {
     return GestureDetector(
       onTap: ontap,
       child: Container(
@@ -221,13 +220,13 @@ class _EditAccountState extends State<EditAccount> {
   }
 
   Future<void> addData() async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(
-      message: 'Please wait...',
-      progressWidget: CircularProgressIndicator(),
-    );
-    dialog.show();
-    if (imgurl != null) {
+    // ProgressDialog dialog = ProgressDialog(context);
+    // dialog.style(
+    //   message: 'Please wait...',
+    //   progressWidget: CircularProgressIndicator(),
+    // );
+    // dialog.show();
+    if (imgurl != "") {
       print("adding img");
       await FirebaseFirestore.instance
           .collection('users')
@@ -245,6 +244,6 @@ class _EditAccountState extends State<EditAccount> {
       // var result =
       // await helper.username(context,username.text);
     }
-    dialog.hide();
+    //dialog.hide();
   }
 }

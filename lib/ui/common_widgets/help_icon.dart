@@ -6,7 +6,9 @@ import 'package:synonym_app/ui/start_point/walk_through_page.dart';
 class HelpIcon extends StatelessWidget {
   final Color color;
 
-  const HelpIcon({this.color});
+  const HelpIcon({
+    this.color = Colors.white
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,9 @@ class HelpIcon extends StatelessWidget {
 class AllThree extends StatelessWidget {
   final Color color;
 
-  const AllThree({this.color});
+  const AllThree({
+    this.color = Colors.white
+  });
 
   @override
   Widget build(BuildContext context) {

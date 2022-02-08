@@ -559,8 +559,8 @@ class _HelpPageState extends State<HelpPage> {
           .get()
           .then((querySnapshot) {
         print(querySnapshot.data());
-        userName = querySnapshot.data()['userName'];
-        email = querySnapshot.data()['email'];
+        userName = querySnapshot.data()!['userName'];
+        email = querySnapshot.data()!['email'];
         setState(() {});
       });
     }

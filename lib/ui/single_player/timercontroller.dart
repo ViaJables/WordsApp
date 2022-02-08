@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TimerController with ChangeNotifier {
-  int timevalue;
+  int timevalue = 0;
   int pauseValue = 0;
-  Timer timer;
+  late Timer timer;
 
   setTimer(int newtime) {
     timevalue = newtime;
