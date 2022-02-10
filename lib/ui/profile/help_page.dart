@@ -17,6 +17,8 @@ class _HelpPageState extends State<HelpPage> {
   TextEditingController name = new TextEditingController();
   String userName = "Loading";
   String email = "Loading";
+  int longestStreak = 0;
+  int xpPoints = 0;
 
   @override
   void initState() {
@@ -183,7 +185,7 @@ class _HelpPageState extends State<HelpPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "5",
+                              "$longestStreak",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -221,94 +223,12 @@ class _HelpPageState extends State<HelpPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "5347",
+                              "$xpPoints",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize:
-                                    MediaQuery.of(context).size.width * 0.05,
-                              ),
-                            ),
-                            SizedBox(height: 5.0),
-                            Text(
-                              "Rank",
-                              style: TextStyle(
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: (MediaQuery.of(context).size.width / 2.0) - 45,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          boxShadow: [
-                            BoxShadow(color: Colors.black26, blurRadius: 5)
-                          ],
-                          border: Border.all(color: Colors.white60, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "57",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.05,
-                              ),
-                            ),
-                            SizedBox(height: 5.0),
-                            Text(
-                              "Correct Answers",
-                              style: TextStyle(
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        width: (MediaQuery.of(context).size.width / 2.0) - 45,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          boxShadow: [
-                            BoxShadow(color: Colors.black26, blurRadius: 5)
-                          ],
-                          border: Border.all(color: Colors.white60, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "530047",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.05,
+                                MediaQuery.of(context).size.width * 0.05,
                               ),
                             ),
                             SizedBox(height: 5.0),
@@ -324,8 +244,11 @@ class _HelpPageState extends State<HelpPage> {
                       ),
                     ],
                   ),
+
                 ],
               ),
+              SizedBox(height: 30),
+
               SizedBox(height: 30.0),
               GestureDetector(
                 onTap: () {
@@ -561,6 +484,8 @@ class _HelpPageState extends State<HelpPage> {
         print(querySnapshot.data());
         userName = querySnapshot.data()!['userName'];
         email = querySnapshot.data()!['email'];
+        longestStreak = querySnapshot.data()!['longestStreak'] ?? 0;
+        xpPoints = querySnapshot.data()!['xpPoints'] ?? 0;
         setState(() {});
       });
     }

@@ -37,6 +37,7 @@ dependencies:
   animated_text_kit: ^4.2.1
   bouncing_widget: ^2.0.0
   simple_animations: ^4.0.1
+  animated_fractionally_sized_box: ^2.0.0
   
 
 flutter_icons:

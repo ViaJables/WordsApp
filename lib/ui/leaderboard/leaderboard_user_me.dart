@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:synonym_app/models/localuser.dart';
 
-class LeaderboardUser extends StatelessWidget {
+class LeaderboardUserMe extends StatelessWidget {
   final LocalUser user;
   final int rank;
   final int points;
 
-  LeaderboardUser({required this.user, required this.rank, required this.points});
+  LeaderboardUserMe({required this.user, required this.rank, required this.points});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-      color: Color.fromRGBO(37, 38, 65, 0.7),
+      color: Theme.of(context).primaryColor,
       child: Row(
         children: [
           Container(
-            width: 50.0,
-            height: 50.0,
+            width: 60.0,
+            height: 60.0,
             decoration: BoxDecoration(
               color: Color.fromRGBO(37, 38, 65, 0.7),
               borderRadius: BorderRadius.all(Radius.circular(30)),
@@ -28,7 +28,7 @@ class LeaderboardUser extends StatelessWidget {
                 style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w100,
-                    fontSize: 18.0),
+                    fontSize: 22.0),
                 textAlign: TextAlign.center,
               ),
             ),

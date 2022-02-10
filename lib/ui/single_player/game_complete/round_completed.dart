@@ -14,6 +14,7 @@ class RoundCompleted extends StatefulWidget {
   final int earnedXP;
   final int streakXP;
   final int remainingLives;
+  final int streakLength;
 
   const RoundCompleted({
     required this.timedOrContinous,
@@ -21,6 +22,7 @@ class RoundCompleted extends StatefulWidget {
     required this.earnedXP,
     required this.streakXP,
     required this.remainingLives,
+    required this.streakLength
   });
 
   @override
@@ -356,12 +358,19 @@ class _RoundCompletedState extends State<RoundCompleted> {
     var user = await _getUser();
     var lastXP = user.xpPoints;
     var newXP = user.xpPoints + widget.earnedXP + widget.streakXP;
+    user.lives = widget.remainingLives;
+    user.xpPoints = newXP;
+    user.daysPoints = user.daysPoints + widget.earnedXP + widget.streakXP;
+    user.weeksPoints = user.weeksPoints + widget.earnedXP + widget.streakXP;
+    user.monthsPoints = user.monthsPoints + widget.earnedXP + widget.streakXP;
+    if (widget.streakLength > user.longestStreak) { user.longestStreak = widget.streakLength; }
+
+
 
     await FirebaseFirestore.instance
         .collection(Keys.user)
         .doc(user.uid)
-        .update({'lives': widget.remainingLives, 'xpPoints': newXP});
-
+        .update(user.toMap());
 
     var route = PageRouteBuilder(
       pageBuilder: (c, a1, a2) => ProgressScreen(

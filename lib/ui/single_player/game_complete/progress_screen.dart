@@ -58,16 +58,28 @@ class _ProgressScreenState extends State<ProgressScreen>
   void initState() {
     super.initState();
     previousLevel = levelForXP(widget.previousXP);
-    thisLevel = levelForXP(widget.totalXP);
+    thisLevel = levelForXP(widget.previousXP + widget.totalXP);
     nextLevel = previousLevel + 1;
     var thisLevelXP = xpForLevel(previousLevel);
     var nextLevelXP = xpForLevel(nextLevel);
     var levelXP = nextLevelXP - thisLevelXP;
-    var lowerBound = (thisLevelXP - widget.previousXP) / levelXP;
-    var upperBound = (nextLevelXP - widget.totalXP) / levelXP;
+    var lowerBound = (widget.previousXP - thisLevelXP) / levelXP;
+    var upperBound =
+        (widget.totalXP + widget.previousXP - thisLevelXP) / levelXP;
     if (upperBound < lowerBound) {
       upperBound = 1.0;
     }
+
+    debugPrint("widget.previousXP: ${widget.previousXP}");
+    debugPrint("widget.totalXP: ${widget.totalXP}");
+    debugPrint("previousLevel: $previousLevel");
+    debugPrint("thisLevel: $thisLevel");
+    debugPrint("thisLevelXP: $thisLevelXP");
+    debugPrint("nextLevel: $nextLevel");
+    debugPrint("nextLevelXP: $nextLevelXP");
+    debugPrint("levelXP: $levelXP");
+    debugPrint("upperBound: $upperBound");
+    debugPrint("lowerBound: $lowerBound");
 
     levelProgressController = AnimationController(
       vsync: this, // the SingleTickerProviderStateMixin
@@ -87,7 +99,7 @@ class _ProgressScreenState extends State<ProgressScreen>
       levelProgressController.forward();
       setState(() {
         levelString = "Level $thisLevel";
-        countupXP = widget.totalXP - widget.previousXP;
+        countupXP = widget.totalXP;
       });
     });
   }

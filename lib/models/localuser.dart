@@ -6,6 +6,9 @@ class LocalUser {
   int hourglasses = 5;
   int xpPoints = 0;
   int longestStreak = 0;
+  int daysPoints = 0;
+  int weeksPoints = 0;
+  int monthsPoints = 0;
 
   LocalUser.empty();
 
@@ -20,22 +23,28 @@ class LocalUser {
     this.clocks= 5,
     this.hourglasses = 5,
     this.xpPoints = 0,
-    this.longestStreak = 0
+    this.longestStreak = 0,
+    this.daysPoints = 0,
+    this.weeksPoints = 0,
+    this.monthsPoints = 0,
   });
 
   factory LocalUser.fromMap(Map<String, dynamic> map) {
     return new LocalUser(
-      uid: map['uid'] as String,
-      userName: map['userName'] as String,
+      uid: map['uid'] as String? ?? "",
+      userName: map['userName'] as String? ?? "",
       name: map['name'] as String? ?? "",
       email: map['email'] as String,
       image: map['image'] as String? ?? "",
-      lives: map['lives'] as int,
-      bombs: map['bombs'] as int,
-      clocks: map['clocks'] as int,
-      hourglasses: map['hourglasses'] as int,
+      lives: map['lives'] as int? ?? 3,
+      bombs: map['bombs'] as int? ?? 5,
+      clocks: map['clocks'] as int? ?? 5,
+      hourglasses: map['hourglasses'] as int? ?? 5,
       longestStreak: map['longestStreak'] as int? ?? 0,
-      xpPoints: map['xpPoints'] as int? ?? 0
+      xpPoints: map['xpPoints'] as int? ?? 0,
+      daysPoints: map['daysPoints'] as int? ?? 0,
+      weeksPoints: map['weeksPoints'] as int? ?? 0,
+      monthsPoints: map['monthsPoints'] as int? ?? 0,
     );
   }
 
@@ -53,6 +62,9 @@ class LocalUser {
       'hourglasses': this.hourglasses,
       'xpPoints': this.xpPoints,
       'longestStreak': this.longestStreak,
+      'daysPoints': this.daysPoints,
+      'weeksPoints': this.weeksPoints,
+      'monthsPoints': this.monthsPoints,
     } as Map<String, dynamic>;
   }
 

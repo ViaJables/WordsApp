@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:synonym_app/ui/start_point/home.dart';
 import 'package:synonym_app/ui/shared/starfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:synonym_app/ui/leaderboard/leaderboard_user.dart';
+import 'package:synonym_app/models/localuser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:synonym_app/ui/leaderboard/leaderboard_widget.dart';
 
 class Leaderboard extends StatefulWidget {
 
@@ -12,9 +14,16 @@ class Leaderboard extends StatefulWidget {
 
 class _LeaderboardState extends State<Leaderboard> {
   var loggedIn = false;
+  List<LocalUser> userList = [];
+  List<LocalUser> filteredList = [];
+  var count = 0;
+  var myUID = "";
+
   @override
   void initState() {
     super.initState();
+    readUsers();
+
 
     setState(() {
       loggedIn = FirebaseAuth.instance.currentUser != null;
@@ -38,180 +47,13 @@ class _LeaderboardState extends State<Leaderboard> {
                   SafeArea(
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                          Column(
-                            children: [
-                              SizedBox(height: 60.0),
-                              Stack(
-                                children: [
-                                  Container(
-                                     width: MediaQuery.of(context).size.width / 4,
-                                      decoration: new BoxDecoration(
-                                          shape: BoxShape.circle,
-
-
-                                      ),
-                                    child: Image.asset(
-                                        "assets/leaderboard/placeholder1.png"
-                                    ),
-                                  ),
-                                ]
-                    ),
-
-                              Text(
-                                "username",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 14.0),
-                              ),
-                              SizedBox(height: 15.0),
-                              Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(76, 76, 76, 0.3),
-                                  boxShadow: [
-                                    BoxShadow(color: Colors.black26, blurRadius: 5)
-                                  ],
-
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(30)),
-                                ),
-                                padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
-                                child: Text(
-                                  "123432",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 14),
-                                ),
-                              ),
-                            ],
-                    ),
-                            Column(
-                              children: [
-                                Stack(
-                                    children: [
-                                      Container(
-                                        width: MediaQuery.of(context).size.width / 3,
-                                        decoration: new BoxDecoration(
-                                          shape: BoxShape.circle,
-
-
-                                        ),
-                                        child: Image.asset(
-                                            "assets/leaderboard/placeholder1.png"
-                                        ),
-                                      ),
-                                    ]
-                                ),
-
-                                Text(
-                                  "username",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 14.0),
-                                ),
-                                SizedBox(height: 15.0),
-                                Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(76, 76, 76, 0.3),
-                                    boxShadow: [
-                                      BoxShadow(color: Colors.black26, blurRadius: 5)
-                                    ],
-
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                  ),
-                                  padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
-                                  child: Text(
-                                    "123432",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                SizedBox(height: 120.0),
-                                Stack(
-                                    children: [
-                                      Container(
-                                        width: MediaQuery.of(context).size.width / 4.5,
-                                        decoration: new BoxDecoration(
-                                          shape: BoxShape.circle,
-
-
-                                        ),
-                                        child: Image.asset(
-                                            "assets/leaderboard/placeholder1.png"
-                                        ),
-                                      ),
-                                    ]
-                                ),
-
-                                Text(
-                                  "username",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 14.0),
-                                ),
-                                SizedBox(height: 15.0),
-                                Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(76, 76, 76, 0.3),
-                                    boxShadow: [
-                                      BoxShadow(color: Colors.black26, blurRadius: 5)
-                                    ],
-
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                  ),
-                                  padding: EdgeInsets.only(left: 30, right: 30, top: 10, bottom: 10),
-                                  child: Text(
-                                    "123432",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ],
-
-                          ),
-                    SizedBox(height: 15.0),
-                    Container(
-
-                      height: 1.0,
-                        width: double.infinity,
-                        color: Theme.of(context).secondaryHeaderColor,
-                    ),
-                        Container(
-
-                          height: 15.0,
-                          width: double.infinity,
-                          color: Color.fromRGBO(37, 38, 65, 0.7),
-                        ),
-                        Expanded(
-                          child:
-                          ListView.builder(
-                              itemCount: 4,
-                              itemBuilder: (context, index) {
-                                return LeaderboardUser();
-                              }),
-
-                        ),
+                        count > 0 ?
+                        Expanded(child:
+                        LeaderboardWidget(userList: filteredList, myUID: myUID, filterMethod: 0),
+                        )
+                            : Expanded( child: Center(
+                          child: CircularProgressIndicator(),
+                        ),),
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
@@ -225,8 +67,13 @@ class _LeaderboardState extends State<Leaderboard> {
                                       Theme.of(context).secondaryHeaderColor,
                                           () => Navigator.pushAndRemoveUntil(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (_) => Home()),
+                                              PageRouteBuilder(
+                                                pageBuilder: (c, a1, a2) => Home(),
+                                                transitionsBuilder: (c, anim, a2, child) =>
+                                                    FadeTransition(opacity: anim, child: child),
+                                                transitionDuration: Duration(milliseconds: 100),
+                                              ),
+
                                               (_) => false),
                                     ),
                                   ),
@@ -276,5 +123,28 @@ class _LeaderboardState extends State<Leaderboard> {
         ),
       ),
     );
+  }
+
+  readUsers() async {
+    FirebaseFirestore.instance.collection("users").get().then((value) {
+      value.docs.forEach((element) {
+        var user = LocalUser.fromMap(element.data());
+        if (user.userName != "") {
+          userList.add(user);
+        }
+      });
+
+      var fUser = FirebaseAuth.instance.currentUser;
+      if (fUser == null) { myUID = ""; } else {
+        myUID = fUser.uid.toString();
+      }
+
+      if (userList.length == 0) { return; }
+      filteredList = userList;
+      filteredList.sort((a, b) => b.daysPoints.compareTo(a.daysPoints));
+      setState(() {
+        count = userList.length;
+      });
+    });
   }
 }

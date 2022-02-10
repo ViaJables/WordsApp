@@ -44,12 +44,17 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     with TickerProviderStateMixin<SinglePlayerGamePage> {
   bool loading = false;
 
+  // Data
   late Question? _currentQuestion = null;
   var hasQuestion = false;
   List<String> usedquestionslist = [];
   List<String> answers = [];
-  int _correctAnswers = 0, _wrongAnswers = 0;
   String answer = "";
+  List<Question> questionsList = [];
+
+
+
+  // Time
   int _currentTime = 0, _pausedTime = 0;
   late Timer t;
   String mix = 'synonym';
@@ -58,24 +63,40 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
   // Timer tim.timevalue;
   List<Widget> output = [];
   Key x = UniqueKey();
+
+  // Layout
   double width = 0.0;
+  double answerHeight = 0.0;
+  double answerPadding = 0.0;
   int count = 0;
-  List<Question> questionsList = [];
+  int pointsPerQuestion = 0;
+
   int index = -1;
   late LocalUser user;
 
   int a = 0;
   var tim, tim2;
   TimerController timeController = TimerController();
+  var timerListener;
+
+  // Streaks
+  var streakLength = 0;
+  var streakPoints = 0.0;
+  var longestStreak = 0;
+  GlobalKey<StreakBarState> _streakBarKey = GlobalKey();
+
 
   // Stats
   var points = 0.0;
+  var regularPoints = 0.0;
+
   var lastPoints = 0.0;
-  var streakPoints = 0.0;
+
   var remainingLives = 3;
   var remainingBombs = 3;
   var remainingClocks = 3;
   var remainingHourglasses = 3;
+
 
   @override
   void initState() {
@@ -89,7 +110,8 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
     _currentTime = 60;
     timeController.setTimer(_currentTime);
 
-    timeController.addListener(() {
+
+    timerListener = () {
       setState(() {
         _currentTime = timeController.timevalue;
 
@@ -97,19 +119,27 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
           completeRound();
         }
       });
-    });
+    };
+
+    timeController.addListener(timerListener);
 
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       if (widget.difficulty == Keys.easy) {
         count = 2;
-        width = MediaQuery.of(context).size.width / 1.33;
+        pointsPerQuestion = 20;
+        answerHeight = (MediaQuery.of(context).size.height - 600) / 2.0;
+        answerPadding = 30.0;
       } else if (widget.difficulty == Keys.medium) {
         count = 3;
-        width = MediaQuery.of(context).size.width / 1.3;
+        pointsPerQuestion = 35;
+        answerHeight = (MediaQuery.of(context).size.height - 500) / 3.0;
+        answerPadding = 30.0;
       } else {
         count = 4;
-        width = MediaQuery.of(context).size.width / 1.5;
+        pointsPerQuestion = 50;
+        answerHeight = (MediaQuery.of(context).size.height - 450) / 4.0;
+        answerPadding = 15.0;
       }
 
 
@@ -124,14 +154,19 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   completeRound() async {
     timeController.timer.cancel();
+    if (streakLength > longestStreak) {
+      longestStreak = streakLength;
+    }
+
     Navigator.pushAndRemoveUntil(
       context,
         PageRouteBuilder(
           pageBuilder: (c, a1, a2) => RoundCompleted(
             timedOrContinous: Keys.timed,
             difficulty: widget.difficulty,
-            earnedXP: points.toInt(),
+            earnedXP: regularPoints.toInt(),
             streakXP: streakPoints.toInt(),
+            streakLength: longestStreak.toInt(),
             remainingLives: remainingLives - 1,
           ),
           transitionsBuilder: (c, anim, a2, child) =>
@@ -143,6 +178,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
   @override
   void dispose() {
+    timeController.removeListener(timerListener);
     timeController.timer.cancel();
     super.dispose();
   }
@@ -416,7 +452,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                       radius: Radius.circular(26),
                                     ),
                                     SizedBox(width: 5),
-                                    StreakBar(),
+                                    StreakBar(key: _streakBarKey, streakCount: streakLength)
                                   ],
                                 ),
                               ],
@@ -511,10 +547,10 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
                                               return Container(
-                                                height: MediaQuery.of(context).size.height * 0.09,
+                                                height: answerHeight,
                                                 padding:
                                                     const EdgeInsets.only(
-                                                        left: 30, right: 30, bottom: 15),
+                                                        left: 30, right: 30, bottom: 30),
                                                 child: _tappableAnimatedContainer(
                                                       answers[index]
                                                           .toUpperCase(),
@@ -600,7 +636,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         onPressed: onTap!,
       child: AnimatedContainer(
         duration: Keys.playAnimDuration,
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsets.symmetric(horizontal: 15.0),
         decoration: BoxDecoration(
           color: Color.fromRGBO(37, 38, 65, 0.7),
           boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
@@ -647,18 +683,32 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
     if (answers[index] ==
         _currentQuestion!.answers[_currentQuestion!.correctAnswer]) {
-      _correctAnswers++;
 
-      // AssetsAudioPlayer.newPlayer().open(
-      //   Audio("assets/Sound_Correct.wav"),
-      //   autoStart: true,
-      //   showNotification: false,
-      // );
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("assets/Sound_Correct.wav"),
+        autoStart: true,
+        showNotification: false,
+      );
+
 
       lastPoints = points;
+      if (_streakBarKey.currentState != null) {
+        _streakBarKey.currentState!.addCorrectAnswer();
+      }
+
+      int numPoints = pointsPerQuestion;
+      if (streakLength >= 3) {
+        numPoints = numPoints * 2;
+        streakPoints += numPoints;
+      } else {
+        regularPoints += numPoints;
+      }
+
+
 
       setState(() {
-        points += 100.0;
+        streakLength += 1;
+        points += numPoints;
         answer = "correct";
         HapticFeedback.mediumImpact();
       });
@@ -669,14 +719,22 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         });
       });
     } else {
-      // AssetsAudioPlayer.newPlayer().open(
-      //   Audio("assets/Sound_Wrong.wav"),
-      //   autoStart: true,
-      //   showNotification: false,
-      // );
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("assets/Sound_Wrong.wav"),
+        autoStart: true,
+        showNotification: false,
+      );
 
-      _wrongAnswers++;
+      if (streakLength > longestStreak) {
+        longestStreak = streakLength;
+      }
+
+      if (_streakBarKey.currentState != null) {
+        _streakBarKey.currentState!.addWrongAnswer();
+      }
+
       setState(() {
+        streakLength = 0;
         answer = "wrong";
         HapticFeedback.lightImpact();
       });
@@ -689,11 +747,7 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
         _currentTime = 10;
       }
     }
-    if (widget.continuous && _wrongAnswers == 1) {
-      print("HERE 1");
-      completeRound();
-      return;
-    }
+
     await Future.delayed(Duration(milliseconds: 400), () {
       setState(() {
         answer = "";
@@ -828,8 +882,6 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       print("Pause");
       //navigate(_currentTime, context);
       setState(() {
-        _correctAnswers = 0;
-        _wrongAnswers = 0;
         _currentTime = 60;
       });
     }
@@ -976,6 +1028,11 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
       return;
     }
 
+    if (count == 1) {
+      HapticFeedback.heavyImpact();
+      return;
+    }
+
     print("Tapped bomb");
     AssetsAudioPlayer.newPlayer().open(
       Audio("assets/bomb.wav"),
@@ -987,11 +1044,15 @@ class _SinglePlayerGamePageState extends State<SinglePlayerGamePage>
 
     user.bombs -= 1;
     debugPrint("COUNT IS $count");
+    for(var answer in answers) {
 
+    }
+
+    count = count - 1;
 
     setState(() {
       remainingBombs = user.bombs;
-      count = count - 1;
+
     });
 
     FirebaseFirestore.instance

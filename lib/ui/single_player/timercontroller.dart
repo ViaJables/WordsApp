@@ -8,6 +8,12 @@ class TimerController with ChangeNotifier {
   int pauseValue = 0;
   late Timer timer;
 
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   setTimer(int newtime) {
     timevalue = newtime;
     timer = Timer.periodic(Duration(seconds: 1), (timer) {

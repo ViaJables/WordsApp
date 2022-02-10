@@ -10,7 +10,7 @@ import 'package:synonym_app/ui/start_point/walk_through_page.dart';
 import 'package:synonym_app/ui/profile/help_page.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:synonym_app/ui/leaderboard/leaderboard.dart';
+import 'package:synonym_app/ui/leaderboard/leaderboard_home.dart';
 import 'package:synonym_app/ui/start_point/home_bottom_card.dart';
 import 'package:synonym_app/ui/shared/animated_logo2.dart';
 import 'package:synonym_app/ui/single_player/timercontroller.dart';
@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
   var hasClaimedDailyReward = false;
   // Ads
   late RewardedAd _rewardedAd;
+  var nextHeartListener;
 
   @override
   void initState() {
@@ -59,23 +60,23 @@ class _HomeState extends State<Home> {
     });
 
     countdownNextHeartController.setTimer(600);
-    countdownNextHeartController.addListener(() {
+
+    nextHeartListener = () {
       setState(() {
         currentHeartTime = countdownNextHeartController.timevalue;
         if (currentHeartTime == 0) {
-          setState(() {
-              canClaimHeart = true;
-          });
+          canClaimHeart = true;
         }
-
-
       });
-    });
+    };
+
+    countdownNextHeartController.addListener(nextHeartListener);
   }
 
   _startGame() {
     Provider.of<QuestionProvider>(context, listen: false).reset();
-
+    countdownNextHeartController.removeListener(nextHeartListener);
+    countdownNextHeartController.timer.cancel();
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -87,13 +88,18 @@ class _HomeState extends State<Home> {
             FadeTransition(opacity: anim, child: child),
         transitionDuration: Duration(milliseconds: 100),
       ),
-    );
+    ).then((value) {
+      _getUser();
+      checkHearts();
+    });
   }
 
   format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
 
   @override
   void dispose() {
+    debugPrint("DISPOSE");
+    countdownNextHeartController.removeListener(nextHeartListener);
     countdownNextHeartController.timer.cancel();
     super.dispose();
   }
@@ -210,10 +216,15 @@ class _HomeState extends State<Home> {
                                       if (loggedIn) {
                                         _startGame();
                                       } else {
+                                        countdownNextHeartController.removeListener(nextHeartListener);
+                                        countdownNextHeartController.timer.cancel();
                                         Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: (_) =>
-                                                    WalkThroughPage()));
+                                                    WalkThroughPage())).then((value) {
+                                          _getUser();
+                                          checkHearts();
+                                        });
                                       }
                                     },
                                     child: Container(
@@ -256,17 +267,21 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                             ),
-                           
                             SizedBox(
                               height: 15,
                             ),
                             !loggedIn
                                 ? GestureDetector(
                                     onTap: () {
+                                      countdownNextHeartController.removeListener(nextHeartListener);
+                                      countdownNextHeartController.timer.cancel();
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (_) => LoginStart()));
+                                              builder: (_) => LoginStart())).then((value) {
+                                        _getUser();
+                                        checkHearts();
+                                      });
                                     },
                                     child: Container(
                                       color: Colors.transparent,
@@ -307,6 +322,8 @@ class _HomeState extends State<Home> {
                       duration: Duration(milliseconds: 30),
                       scaleFactor: 1.5,
                       onPressed: () {
+                        countdownNextHeartController.removeListener(nextHeartListener);
+                        countdownNextHeartController.timer.cancel();
                         Navigator.push(
                           context,
                           PageRouteBuilder(
@@ -315,7 +332,10 @@ class _HomeState extends State<Home> {
                                 FadeTransition(opacity: anim, child: child),
                             transitionDuration: Duration(milliseconds: 100),
                           ),
-                        );
+                        ).then((value) {
+                          _getUser();
+                          checkHearts();
+                        });
                       },
                       child: Column(
                         children: [
@@ -344,15 +364,20 @@ class _HomeState extends State<Home> {
                       duration: Duration(milliseconds: 30),
                       scaleFactor: 1.5,
                       onPressed: () {
+                        countdownNextHeartController.removeListener(nextHeartListener);
+                        countdownNextHeartController.timer.cancel();
                         Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (c, a1, a2) => Leaderboard(),
+                            pageBuilder: (c, a1, a2) => LeaderboardHome(),
                             transitionsBuilder: (c, anim, a2, child) =>
                                 FadeTransition(opacity: anim, child: child),
                             transitionDuration: Duration(milliseconds: 100),
                           ),
-                        );
+                        ).then((value) {
+                          _getUser();
+                          checkHearts();
+                        });
                       },
                       child: Column(
                         children: [
@@ -511,6 +536,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> returnFromPop() async {
+    debugPrint("RETURN FROM POP");
+  }
+
   Future<LocalUser> _getUser() async {
     LocalUser user = LocalUser.fromMap((await FirebaseFirestore.instance
             .collection(Keys.user)
@@ -562,7 +591,6 @@ class _HomeState extends State<Home> {
     setState(() {
       hasClaimedDailyReward = true;
     });
-
   }
 
   checkHearts() async {
@@ -584,6 +612,7 @@ class _HomeState extends State<Home> {
         } else {
           canClaimHeart = false;
           countdownNextHeartController.setTimer(14400 - seconds);
+          countdownNextHeartController.addListener(nextHeartListener);
         }
       });
     }
